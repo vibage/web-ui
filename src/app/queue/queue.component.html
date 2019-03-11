@@ -1,7 +1,7 @@
 <p>
-  queue works!
   <button (click)="stopMusic()"> Stop Music </button>
   <button (click)="startMusic()"> Start Music </button>
-  <button (click)="searchSong()"> Search Music </button>
-  <input type="text" #searchInput />
+  <li *ngFor="let track of tracks">
+    <p> {{ track.uri }} </p>
+  </li>
 </p>
