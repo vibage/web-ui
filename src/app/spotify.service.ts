@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of, from } from "rxjs";
 import { switchMap, tap } from "rxjs/operators";
+import { ITrack } from "./track/track.component";
 
 type HttpMethod = "PUT" | "POST" | "GET";
 
@@ -38,20 +39,40 @@ export class SpotifyService {
           },
           method
         })
-      )
+      ),
+      switchMap(data => data.json())
     );
   }
 
-  public addTrack(uri: string) {
+  public addTrack(id: string) {
     const payload = JSON.stringify({
       id: this.id,
-      uri
+      trackId: id
     });
     return from(this.getToken()).pipe(
       switchMap(token =>
         fetch(`${this.baseUrl}/spotify/addTrack`, {
           body: payload,
           method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json"
+          }
+        })
+      )
+    );
+  }
+
+  public removeTrack(track: ITrack) {
+    const payload = JSON.stringify({
+      id: this.id,
+      uri: track.uri
+    });
+    return from(this.getToken()).pipe(
+      switchMap(token =>
+        fetch(`${this.baseUrl}/spotify/removeTrack`, {
+          body: payload,
+          method: "POST",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json"
@@ -76,6 +97,12 @@ export class SpotifyService {
 
   public getQueue() {
     return from(fetch(`${this.baseUrl}/spotify/getTracks/${this.id}`)).pipe(
+      switchMap(data => data.json())
+    );
+  }
+
+  public nextSong() {
+    return from(fetch(`${this.baseUrl}/spotify/nextTrack/${this.id}`)).pipe(
       switchMap(data => data.json())
     );
   }

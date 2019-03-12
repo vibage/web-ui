@@ -14,7 +14,7 @@ import { fromEvent } from "rxjs";
   template: `
     <input type="text" #searchInput />
     <div #results *ngFor="let track of tracks">
-      <app-track [track]="track"></app-track>
+      <app-track [track]="track" [addable]="true"></app-track>
     </div>
   `,
   styleUrls: ["./search.component.scss"]
@@ -40,7 +40,6 @@ export class SearchComponent implements AfterViewInit {
             "GET"
           )
         ),
-        switchMap(res => res.json()),
         map(data => data.tracks.items)
       )
       .subscribe(x => {

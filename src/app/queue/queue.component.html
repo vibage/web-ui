@@ -1,7 +1,7 @@
-<p>
+<div>
   <button (click)="stopMusic()"> Stop Music </button>
   <button (click)="startMusic()"> Start Music </button>
-  <li *ngFor="let track of tracks">
-    <p> {{ track.uri }} </p>
-  </li>
-</p>
+  <div *ngFor="let track of tracks">
+    <app-track [track]="track" [removable]="true"></app-track>
+  </div>
+</div>

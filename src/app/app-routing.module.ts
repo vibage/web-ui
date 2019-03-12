@@ -5,7 +5,7 @@ import { SearchComponent } from "./search/search.component";
 import { QueueComponent } from "./queue/queue.component";
 
 const routes: Routes = [
-  { path: "player", component: PlayerComponent },
+  { path: "admin", component: PlayerComponent },
   { path: "search", component: SearchComponent },
   { path: "queue", component: QueueComponent }
 ];

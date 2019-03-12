@@ -1,35 +1,51 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
 import { SpotifyService } from "../spotify.service";
+import { DomSanitizer } from "@angular/platform-browser";
+import { MatIconRegistry } from "@angular/material";
 
 interface IArtist {
   name: string;
 }
 
-interface ITrack {
+export interface ITrack {
   name: string;
   artists: IArtist[];
   uri: string;
+  id: string;
 }
 
 @Component({
   selector: "app-track",
-  template: `
-    <div>
-      <p>{{ track.name }} - {{ track.artists[0].name }}</p>
-      <button (click)="addTrack()">Add Track</button>
-    </div>
-  `,
+  templateUrl: "./track.component.html",
   styleUrls: ["./track.component.scss"]
 })
 export class TrackComponent implements OnInit {
   @Input() track!: ITrack;
-  constructor(private spot: SpotifyService) {}
+  @Input() addable!: boolean;
+  @Input() removable!: boolean;
+  constructor(
+    private spot: SpotifyService,
+    iconRegistry: MatIconRegistry,
+    sanitizer: DomSanitizer
+  ) {
+    iconRegistry.addSvgIcon(
+      "delete",
+      sanitizer.bypassSecurityTrustResourceUrl(
+        "assets/icons/delete.svg"
+      )
+    );
+  }
 
   ngOnInit() {}
 
   addTrack() {
-    this.spot.addTrack(this.track.uri).subscribe(data => {
+    this.spot.addTrack(this.track.id).subscribe(data => {
+      console.log(data);
+    });
+  }
+
+  removeTrack() {
+    this.spot.removeTrack(this.track).subscribe(data => {
       console.log(data);
     });
   }

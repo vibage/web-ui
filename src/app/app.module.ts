@@ -7,14 +7,21 @@ import { AppComponent } from "./app.component";
 import { QueueComponent } from "./queue/queue.component";
 import { HttpClientModule } from "@angular/common/http";
 import { SearchComponent } from "./search/search.component";
-import { TrackComponent } from './track/track.component';
-import { PlayerComponent } from './player/player.component';
+import { TrackComponent } from "./track/track.component";
+import { PlayerComponent } from "./player/player.component";
+import { MatIconModule } from "@angular/material/icon";
 
 // const config: SocketIoConfig = { url: 'http://localhost:8988', options: {} };
 
 @NgModule({
-  declarations: [AppComponent, QueueComponent, SearchComponent, TrackComponent, PlayerComponent],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule],
+  declarations: [
+    AppComponent,
+    QueueComponent,
+    SearchComponent,
+    TrackComponent,
+    PlayerComponent
+  ],
+  imports: [BrowserModule, AppRoutingModule, HttpClientModule, MatIconModule],
   providers: [],
   bootstrap: [AppComponent]
 })
