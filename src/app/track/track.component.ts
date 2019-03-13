@@ -9,6 +9,7 @@ interface IArtist {
 
 export interface ITrack {
   name: string;
+  artist?: string;
   artists: IArtist[];
   uri: string;
   id: string;
@@ -30,9 +31,7 @@ export class TrackComponent implements OnInit {
   ) {
     iconRegistry.addSvgIcon(
       "delete",
-      sanitizer.bypassSecurityTrustResourceUrl(
-        "assets/icons/delete.svg"
-      )
+      sanitizer.bypassSecurityTrustResourceUrl("assets/icons/delete.svg")
     );
   }
 
