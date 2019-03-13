@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Observable, of, from } from "rxjs";
 import { switchMap, tap } from "rxjs/operators";
 import { ITrack } from "./track/track.component";
+import { environment } from "../environments/environment";
 
 type HttpMethod = "PUT" | "POST" | "GET";
 
@@ -10,10 +11,18 @@ type HttpMethod = "PUT" | "POST" | "GET";
   providedIn: "root"
 })
 export class SpotifyService {
-  constructor(private http: HttpClient) {}
-  public static token: string;
-  private baseUrl = "http://localhost:3000";
+  private static token: string;
+  private baseUrl!: string;
   private id = "5c85c3b0a402c6226e67074a";
+
+  constructor(private http: HttpClient) {
+    const { production } = environment;
+    if (production) {
+      this.baseUrl = location.host;
+    } else {
+      this.baseUrl = "http://localhost:3000";
+    }
+  }
 
   public getToken(): Observable<string> {
     if (SpotifyService.token) {
