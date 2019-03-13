@@ -18,7 +18,7 @@ export class SpotifyService {
   constructor(private http: HttpClient) {
     const { production } = environment;
     if (production) {
-      this.baseUrl = location.host;
+      this.baseUrl = location.origin;
     } else {
       this.baseUrl = "http://localhost:3000";
     }
