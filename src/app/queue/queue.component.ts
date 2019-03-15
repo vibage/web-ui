@@ -16,6 +16,11 @@ export class QueueComponent implements OnInit {
       console.log(data);
       this.tracks = data;
     });
+
+    this.spot.getTracksSocket().subscribe(data => {
+      console.log("Track data", data);
+      this.tracks = data;
+    });
   }
 
   startMusic() {

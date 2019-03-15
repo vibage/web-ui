@@ -1,5 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { SpotifyService } from "../spotify.service";
+import { ITrack } from "../track/track.component";
 
 @Component({
   selector: "app-player",
@@ -10,22 +11,38 @@ export class PlayerComponent implements OnInit {
   constructor(private spot: SpotifyService) {}
 
   private player!: Spotify.SpotifyPlayer;
-
   private songTimer!: any;
 
+  public songProgress!: number;
+  public currentTrack!: ITrack;
+
   waitForSongEnd() {
-    this.spot.makeRequest("/v1/me/player", "GET").subscribe(data => {
+    this.spot.getPlayer().subscribe(data => {
       console.log(data);
-      if (!data.is_playing) {
+      if (data.status === "204" || !data.is_playing) {
+        console.log("No song playing");
         return;
       }
+
+      this.currentTrack = data.item;
+
       const timeLeft = data.item.duration_ms - data.progress_ms;
-      console.log(timeLeft);
-      clearTimeout(this.songTimer);
-      this.songTimer = setTimeout(() => {
-        console.log("Song Over");
-        this.nextSong();
-      }, timeLeft - 500);
+      const then = new Date().getTime();
+      const endTime = timeLeft + then;
+      // start progress bar timer
+      clearInterval(this.songTimer);
+      this.songTimer = setInterval(() => {
+        const now = new Date().getTime();
+        const elapse = now - then + data.progress_ms;
+        this.songProgress = (elapse / data.item.duration_ms) * 100;
+
+        // check to see if song is over
+        if (endTime - now < 1000) {
+          console.log("Song Over");
+          clearInterval(this.songTimer);
+          this.nextSong();
+        }
+      }, 500);
     });
   }
 

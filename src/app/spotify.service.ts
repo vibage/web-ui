@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of, from } from "rxjs";
-import { switchMap, tap } from "rxjs/operators";
+import { switchMap, tap, map } from "rxjs/operators";
 import { ITrack } from "./track/track.component";
 import { environment } from "../environments/environment";
+import { Socket } from "ngx-socket-io";
 
 type HttpMethod = "PUT" | "POST" | "GET";
 
@@ -15,13 +16,20 @@ export class SpotifyService {
   private baseUrl!: string;
   private id = "5c85c3b0a402c6226e67074a";
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private socket: Socket) {
     const { production } = environment;
     if (production) {
       this.baseUrl = location.origin;
     } else {
       this.baseUrl = "http://localhost:3000";
     }
+
+    // set id
+    this.socket.emit("myId", this.id);
+  }
+
+  public getTracksSocket() {
+    return this.socket.fromEvent("tracks").pipe() as Observable<any>;
   }
 
   public getToken(): Observable<string> {
@@ -37,6 +45,7 @@ export class SpotifyService {
   }
 
   public makeRequest(url: string, method: HttpMethod, payload?: Object) {
+    console.log(url);
     return from(this.getToken()).pipe(
       switchMap(token =>
         fetch(`https://api.spotify.com${url}`, {
@@ -114,5 +123,10 @@ export class SpotifyService {
     return from(fetch(`${this.baseUrl}/spotify/nextTrack/${this.id}`)).pipe(
       switchMap(data => data.json())
     );
+  }
+
+  public getPlayer() {
+    const url = `${this.baseUrl}/spotify/player/${this.id}`;
+    return from(fetch(url)).pipe(switchMap(data => data.json()));
   }
 }

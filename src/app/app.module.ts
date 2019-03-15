@@ -10,8 +10,16 @@ import { SearchComponent } from "./search/search.component";
 import { TrackComponent } from "./track/track.component";
 import { PlayerComponent } from "./player/player.component";
 import { MatIconModule } from "@angular/material/icon";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
 
-// const config: SocketIoConfig = { url: 'http://localhost:8988', options: {} };
+const config: SocketIoConfig = {
+  url: "http://localhost:3000"
+  // options: {
+  //   transports: ["websocket", "xhr-polling"]
+  // }
+};
 
 @NgModule({
   declarations: [
@@ -21,7 +29,15 @@ import { MatIconModule } from "@angular/material/icon";
     TrackComponent,
     PlayerComponent
   ],
-  imports: [BrowserModule, AppRoutingModule, HttpClientModule, MatIconModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    HttpClientModule,
+    MatIconModule,
+    MatProgressBarModule,
+    BrowserAnimationsModule,
+    SocketIoModule.forRoot(config)
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })
