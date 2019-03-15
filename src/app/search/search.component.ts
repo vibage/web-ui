@@ -5,7 +5,8 @@ import {
   filter,
   debounceTime,
   distinctUntilChanged,
-  map
+  map,
+  tap
 } from "rxjs/operators";
 import { fromEvent } from "rxjs";
 
@@ -44,11 +45,6 @@ export class SearchComponent implements AfterViewInit {
       )
       .subscribe(x => {
         this.tracks = x;
-        // console.log(x);
-        // const html = x.map(data => {
-        //   return `<div>${data.name}</div>`;
-        // });
-        // this.results.nativeElement.innerHTML = html.join("");
       });
   }
 }

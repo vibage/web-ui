@@ -1,9 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of, from } from "rxjs";
-import { switchMap, tap, map } from "rxjs/operators";
+import { switchMap, tap } from "rxjs/operators";
 import { ITrack } from "./track/track.component";
-import { environment } from "../environments/environment";
 import { Socket } from "ngx-socket-io";
 
 type HttpMethod = "PUT" | "POST" | "GET";
@@ -17,12 +16,8 @@ export class SpotifyService {
   private id = "5c85c3b0a402c6226e67074a";
 
   constructor(private http: HttpClient, private socket: Socket) {
-    const { production } = environment;
-    if (production) {
-      this.baseUrl = location.origin;
-    } else {
-      this.baseUrl = "http://localhost:3000";
-    }
+    this.baseUrl = `${location.protocol}//${location.hostname}:3000`;
+    console.log("Base URL", this.baseUrl);
 
     // set id
     this.socket.emit("myId", this.id);
