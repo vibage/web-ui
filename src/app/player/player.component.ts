@@ -1,6 +1,8 @@
 import { Component, OnInit } from "@angular/core";
 import { SpotifyService } from "../spotify.service";
 import { ITrack } from "../track/track.component";
+import { filter, switchMap, map, take } from 'rxjs/operators';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: "app-player",
@@ -11,44 +13,47 @@ export class PlayerComponent implements OnInit {
   constructor(private spot: SpotifyService) {}
 
   private player!: Spotify.SpotifyPlayer;
-  private songTimer!: any;
+  private songInterval: Subscription;
 
   public songProgress!: number;
   public currentTrack!: ITrack;
 
+  public actionButtonText = "Start";
+
   waitForSongEnd() {
-    this.spot.getPlayer().subscribe(data => {
-      console.log(data);
-      if (data.status === "204" || !data.is_playing) {
-        console.log("No song playing");
-        return;
-      }
-
-      this.currentTrack = data.item;
-
-      const timeLeft = data.item.duration_ms - data.progress_ms;
-      const then = new Date().getTime();
-      const endTime = timeLeft + then;
-      // start progress bar timer
-      clearInterval(this.songTimer);
-      this.songTimer = setInterval(() => {
-        const now = new Date().getTime();
-        const elapse = now - then + data.progress_ms;
-        this.songProgress = (elapse / data.item.duration_ms) * 100;
-
-        // check to see if song is over
-        if (endTime - now < 1000) {
-          console.log("Song Over");
-          clearInterval(this.songTimer);
-          this.nextSong();
+    const intervalTime = 500;
+    let timeLeft!: number;
+    console.log("Waiting for song");
+    this.songInterval = this.spot.getPlayer().pipe(
+      filter(data => {
+        if (data.status === "204" || !data.is_playing || !data.item) {
+          console.log("No song playing");
+          return false;
         }
-      }, 500);
+        return true
+      }),
+      switchMap(data => {
+        this.currentTrack = data.item;
+        timeLeft = data.item.duration_ms - data.progress_ms;
+        return interval(intervalTime);
+      }),
+      map(() => {
+        timeLeft -= intervalTime;
+        this.songProgress =  (1 - (timeLeft / this.currentTrack.duration_ms)) * 100;
+        return timeLeft
+      }),
+      filter(timeLeft => timeLeft < 1000),
+      take(1),
+    ).subscribe(() => {
+      console.log("Song Over");
+      this.nextSong();
     });
   }
 
   ngOnInit() {
     this.waitForSongEnd();
     window.onSpotifyWebPlaybackSDKReady = () => {
+      console.log("Creating Player");
       this.player = new Spotify.Player({
         name: "Web Playback SDK Quick Start Player",
         getOAuthToken: cb => {
@@ -81,8 +86,10 @@ export class PlayerComponent implements OnInit {
       this.player.addListener("ready", async ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
         // this.deviceId = device_id;
-        this.spot.play();
-        this.waitForSongEnd();
+        this.spot.startQueue().subscribe(() => {
+          this.setActionButtonText();
+          this.waitForSongEnd();
+        })
       });
 
       // Not Ready
@@ -92,15 +99,39 @@ export class PlayerComponent implements OnInit {
     };
   }
 
+  public playPause() {
+    if (!this.spot.isStarted) {
+      // if the player is not started, then start it
+      this.player.connect();
+    } else if (this.spot.isPlaying) {
+      this.spot.pause().subscribe(() => {
+        this.setActionButtonText();
+      })
+    } else if (!this.spot.isPlaying) {
+      this.spot.play().subscribe(() => {
+        this.setActionButtonText();
+      });
+    }
+  }
+
+  public setActionButtonText() {
+    if (this.spot.isStarted) {
+      this.actionButtonText = this.spot.isPlaying ? "Pause" : "Play"
+    } else {
+      this.actionButtonText = "Start";
+    }
+  }
+
   public startPlayer() {
     this.player.connect();
   }
 
   public nextSong() {
     console.log("Next Song");
+    this.songInterval.unsubscribe();
     this.spot.nextSong().subscribe(data => {
       console.log(data);
-      this.waitForSongEnd();
+      setTimeout(() => this.waitForSongEnd(), 1000);
     });
   }
 }

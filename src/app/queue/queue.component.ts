@@ -22,16 +22,4 @@ export class QueueComponent implements OnInit {
       this.tracks = data;
     });
   }
-
-  startMusic() {
-    this.spot.makeRequest("/v1/me/player/play", "PUT").subscribe(() => {
-      console.log("Music Started");
-    });
-  }
-
-  stopMusic() {
-    this.spot.makeRequest("/v1/me/player/pause", "PUT").subscribe(() => {
-      console.log("Music Stopped");
-    });
-  }
 }

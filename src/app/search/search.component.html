@@ -1,3 +1,7 @@
-<p>
-  search worked
-</p>
+<div id="searchDiv">
+  <mat-icon svgIcon="search"></mat-icon>
+  <input type="text" #searchInput />
+</div>
+<div *ngIf="query.length > 0">
+  <app-track *ngFor="let track of tracks" [track]="track" [addable]="true"></app-track>
+</div>

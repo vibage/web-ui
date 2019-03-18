@@ -13,6 +13,7 @@ export interface ITrack {
   artists: IArtist[];
   uri: string;
   id: string;
+  duration_ms: number;
 }
 
 @Component({

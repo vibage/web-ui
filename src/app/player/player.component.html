@@ -1,9 +1,7 @@
-<button (click)="startPlayer()">Start Player</button>
+<p *ngIf="currentTrack"> {{ currentTrack.name }} - {{ currentTrack.artists[0].name }} </p>
+<p *ngIf="!currentTrack"> No Song Playing </p>
+<mat-progress-bar color="primary" [value]="songProgress" class="progressBar" mode="determinate"></mat-progress-bar>
 <button (click)="nextSong()"> Next Song </button>
-<div *ngIf="currentTrack">
-  <p> {{ currentTrack.name }} - {{ currentTrack.artists[0].name }} </p>
-  <mat-progress-bar color="primary" [value]="songProgress" class="progressBar" mode="determinate"></mat-progress-bar>
-</div>
+<button (click)="playPause()"> {{ actionButtonText }} </button>
 
 <app-queue></app-queue>
-<app-search></app-search>

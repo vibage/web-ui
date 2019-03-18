@@ -1,7 +1,5 @@
 <div>
   <p>{{ track.name }} - {{ track.artist || track.artists[0].name }}</p>
   <button class="addable" *ngIf="addable" (click)="addTrack()">Add Track</button>
-  <button *ngIf="removable" (click)="removeTrack()">
-    <mat-icon svgIcon="delete"></mat-icon>
-  </button>
+  <mat-icon svgIcon="delete" id="deleteIcon" *ngIf="removable" (click)="removeTrack()"></mat-icon>
 </div>

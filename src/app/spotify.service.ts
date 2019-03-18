@@ -7,13 +7,24 @@ import { Socket } from "ngx-socket-io";
 
 type HttpMethod = "PUT" | "POST" | "GET";
 
+interface IPlayer {
+  status: string;
+  is_playing: boolean;
+  item: ITrack;
+  progress_ms: number;
+  shuffle_state: boolean;
+}
+
 @Injectable({
   providedIn: "root"
 })
 export class SpotifyService {
   private static token: string;
   private baseUrl!: string;
-  private id = "5c85c3b0a402c6226e67074a";
+  private id = "5c8ebbff82e57027dab01ef0";
+
+  public isStarted = false;
+  public isPlaying = false;
 
   constructor(private http: HttpClient, private socket: Socket) {
     this.baseUrl = `${location.protocol}//${location.hostname}:3000`;
@@ -21,6 +32,10 @@ export class SpotifyService {
 
     // set id
     this.socket.emit("myId", this.id);
+  }
+
+  public setQueueId(id: string) {
+    this.id = id;
   }
 
   public getTracksSocket() {
@@ -40,7 +55,6 @@ export class SpotifyService {
   }
 
   public makeRequest(url: string, method: HttpMethod, payload?: Object) {
-    console.log(url);
     return from(this.getToken()).pipe(
       switchMap(token =>
         fetch(`https://api.spotify.com${url}`, {
@@ -55,6 +69,10 @@ export class SpotifyService {
       ),
       switchMap(data => data.json())
     );
+  }
+
+  public getNearbyUsers() {
+    return this.http.get(`${this.baseUrl}/users`);
   }
 
   public addTrack(id: string) {
@@ -95,12 +113,9 @@ export class SpotifyService {
     );
   }
 
-  public play() {
-    fetch(`${this.baseUrl}/spotify/play`, {
-      body: JSON.stringify({
-        id: this.id
-      }),
-      method: "POST",
+  public startQueue() {
+    this.isStarted = true;
+    return this.http.post(`${this.baseUrl}/player/startQueue`, { id: this.id }, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
@@ -108,20 +123,38 @@ export class SpotifyService {
     });
   }
 
+  public play() {
+    this.isPlaying = true;
+    return this.http.put(`${this.baseUrl}/player/play`, { id: this.id });
+  }
+
+  public pause() {
+    this.isPlaying = false;
+    return this.http.put(`${this.baseUrl}/player/pause`, { id: this.id });
+  }
+
+  // determine if we should start, play, or pause the queue
+  public playPause() {
+    const ob = !this.isStarted ? this.startQueue :
+                this.isPlaying ? this.pause :
+                this.play;
+    return ob;
+  }
+
   public getQueue() {
-    return from(fetch(`${this.baseUrl}/spotify/getTracks/${this.id}`)).pipe(
-      switchMap(data => data.json())
-    );
+    return this.http.get<ITrack[]>(`${this.baseUrl}/spotify/getTracks/${this.id}`);
   }
 
   public nextSong() {
-    return from(fetch(`${this.baseUrl}/spotify/nextTrack/${this.id}`)).pipe(
-      switchMap(data => data.json())
-    );
+    return this.http.get(`${this.baseUrl}/spotify/nextTrack/${this.id}`);
   }
 
   public getPlayer() {
     const url = `${this.baseUrl}/spotify/player/${this.id}`;
-    return from(fetch(url)).pipe(switchMap(data => data.json()));
+    return this.http.get<IPlayer>(url).pipe(
+      tap(player => {
+        this.isPlaying = player.is_playing;
+      }),
+    );
   }
 }
