@@ -1,8 +1,11 @@
 import { Component, OnInit } from "@angular/core";
-import { SpotifyService } from "../spotify.service";
-import { ITrack } from "../track/track.component";
-import { filter, switchMap, map, take } from 'rxjs/operators';
-import { interval, Subscription } from 'rxjs';
+import { SpotifyService } from "../spotify/spotify.service";
+import { PlayerService } from './player.service';
+import { interval, from } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
+import "./spotifyPlayer";
+import { MatSliderChange } from '@angular/material';
+
 
 @Component({
   selector: "app-player",
@@ -10,58 +13,31 @@ import { interval, Subscription } from 'rxjs';
   styleUrls: ["./player.component.scss"]
 })
 export class PlayerComponent implements OnInit {
-  constructor(private spot: SpotifyService) {}
+  constructor(private api: PlayerService, private spot: SpotifyService) {}
 
   private player!: Spotify.SpotifyPlayer;
-  private songInterval: Subscription;
+  private deviceId!: string;
 
-  public songProgress!: number;
-  public currentTrack!: ITrack;
-
-  public actionButtonText = "Start";
-
-  waitForSongEnd() {
-    const intervalTime = 500;
-    let timeLeft!: number;
-    console.log("Waiting for song");
-    this.songInterval = this.spot.getPlayer().pipe(
-      filter(data => {
-        if (data.status === "204" || !data.is_playing || !data.item) {
-          console.log("No song playing");
-          return false;
-        }
-        return true
-      }),
-      switchMap(data => {
-        this.currentTrack = data.item;
-        timeLeft = data.item.duration_ms - data.progress_ms;
-        return interval(intervalTime);
-      }),
-      map(() => {
-        timeLeft -= intervalTime;
-        this.songProgress =  (1 - (timeLeft / this.currentTrack.duration_ms)) * 100;
-        return timeLeft
-      }),
-      filter(timeLeft => timeLeft < 1000),
-      take(1),
-    ).subscribe(() => {
-      console.log("Song Over");
-      this.nextSong();
-    });
-  }
+  public playerState!: Spotify.PlaybackState;
+  public isPlaying = false;
+  public isStarted = false;
+  public progress = 0;
 
   ngOnInit() {
-    this.waitForSongEnd();
+    // this.waitForSongEnd();
     window.onSpotifyWebPlaybackSDKReady = () => {
       console.log("Creating Player");
+
       this.player = new Spotify.Player({
-        name: "Web Playback SDK Quick Start Player",
+        name: "Fizzle Player",
         getOAuthToken: cb => {
           this.spot.getToken().subscribe(token => {
             cb(token);
           });
         }
       });
+
+      this.player.connect();
 
       // Error handling
       this.player.addListener("initialization_error", ({ message }) => {
@@ -79,17 +55,14 @@ export class PlayerComponent implements OnInit {
 
       // Playback status updates
       this.player.addListener("player_state_changed", state => {
-        console.log(state);
+        this.api.sendPlayerState(state).subscribe(() => {});
+        this.processState(state);
       });
 
       // Ready
-      this.player.addListener("ready", async ({ device_id }) => {
+      this.player.addListener("ready", ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
-        // this.deviceId = device_id;
-        this.spot.startQueue().subscribe(() => {
-          this.setActionButtonText();
-          this.waitForSongEnd();
-        })
+        this.deviceId = device_id;
       });
 
       // Not Ready
@@ -99,39 +72,49 @@ export class PlayerComponent implements OnInit {
     };
   }
 
-  public playPause() {
-    if (!this.spot.isStarted) {
-      // if the player is not started, then start it
-      this.player.connect();
-    } else if (this.spot.isPlaying) {
-      this.spot.pause().subscribe(() => {
-        this.setActionButtonText();
+  public start() {
+    this.isStarted = true;
+    this.isPlaying = true;
+    this.spot.startQueue(this.deviceId).subscribe(() => {
+      console.log("Queue Started");
+      // start timer
+      interval(300).pipe(
+        switchMap(() => from(this.player.getCurrentState()))
+      ).subscribe(state => {
+        this.processState(state)
       })
-    } else if (!this.spot.isPlaying) {
-      this.spot.play().subscribe(() => {
-        this.setActionButtonText();
-      });
-    }
-  }
-
-  public setActionButtonText() {
-    if (this.spot.isStarted) {
-      this.actionButtonText = this.spot.isPlaying ? "Pause" : "Play"
-    } else {
-      this.actionButtonText = "Start";
-    }
-  }
-
-  public startPlayer() {
-    this.player.connect();
-  }
-
-  public nextSong() {
-    console.log("Next Song");
-    this.songInterval.unsubscribe();
-    this.spot.nextSong().subscribe(data => {
-      console.log(data);
-      setTimeout(() => this.waitForSongEnd(), 1000);
     });
+  }
+
+  public processState(state: Spotify.PlaybackState) {
+    if (!state) return;
+    this.playerState = state;
+    const { position , duration } = state;
+    this.progress = (position / duration) * 100;
+
+    if (duration - position < 1100) {
+      this.nextTrack();
+    }
+  }
+
+  public nextTrack() {
+    this.api.nextTrack().subscribe(() => {
+      console.log("Next Song");
+    })
+  }
+
+  public play() {
+    this.isPlaying = true;
+    this.player.resume();
+  }
+
+  public pause() {
+    this.isPlaying = false;
+    this.player.pause();
+  }
+
+  public seek(event: MatSliderChange) {
+    const seekTimeMs = (event.value / 100) * this.playerState.duration;
+    this.player.seek(seekTimeMs);
   }
 }

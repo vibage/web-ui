@@ -1,13 +1,13 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
 import { PlayerComponent } from "./player/player.component";
-import { SearchComponent } from "./search/search.component";
 import { QueueComponent } from "./queue/queue.component";
+import { CurrentTrackComponent } from './current-track/current-track.component';
 
 const routes: Routes = [
   { path: "admin", component: PlayerComponent },
-  { path: "search", component: SearchComponent },
-  { path: "queue", component: QueueComponent }
+  { path: "queue", component: QueueComponent },
+  { path: "current", component: CurrentTrackComponent }
 ];
 
 @NgModule({

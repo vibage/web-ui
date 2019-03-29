@@ -1,5 +1,12 @@
 <div>
   <p>{{ track.name }} - {{ track.artist || track.artists[0].name }}</p>
-  <button class="addable" *ngIf="addable" (click)="addTrack()">Add Track</button>
-  <mat-icon svgIcon="delete" id="deleteIcon" *ngIf="removable" (click)="removeTrack()"></mat-icon>
+  <div id="actions">
+    <button class="addable" *ngIf="addable" (click)="add()">Add Track</button>
+    <div id="likeDiv" (click)="toggleLike()">
+      <p> {{ track.likes }} </p>
+      <mat-icon svgIcon="heart" *ngIf="likeable && isLiked"></mat-icon>
+      <mat-icon svgIcon="heart_outline" *ngIf="likeable && !isLiked"></mat-icon>
+    </div>
+    <mat-icon svgIcon="delete" id="deleteIcon" *ngIf="removable" (click)="remove()"></mat-icon>
+  </div>
 </div>

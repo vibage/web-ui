@@ -1,7 +1,18 @@
-<p *ngIf="currentTrack"> {{ currentTrack.name }} - {{ currentTrack.artists[0].name }} </p>
-<p *ngIf="!currentTrack"> No Song Playing </p>
-<mat-progress-bar color="primary" [value]="songProgress" class="progressBar" mode="determinate"></mat-progress-bar>
-<button (click)="nextSong()"> Next Song </button>
-<button (click)="playPause()"> {{ actionButtonText }} </button>
+<mat-card>
+  <mat-card-content>
+    <p *ngIf="playerState"> {{ playerState.track_window.current_track.name }} -
+      {{ playerState.track_window.current_track.artists[0].name }} </p>
+    <!-- <mat-progress-bar color="primary" [value]="progress" class="progressBar" mode="determinate"></mat-progress-bar> -->
+    <mat-slider max="100" min="0" [(ngModel)]="progress" (input)="seek($event)" class="progressBar">
+    </mat-slider>
+  </mat-card-content>
+  <mat-card-actions>
+    <button *ngIf="!isStarted" (click)="start()" mat-button> Start </button>
+    <button *ngIf="isStarted" (click)="nextTrack()" mat-button> Next Song </button>
+    <button *ngIf="!isPlaying" (click)="play()" mat-button> Play </button>
+    <button *ngIf="isPlaying" (click)="pause()" mat-button> Pause </button>
+  </mat-card-actions>
+</mat-card>
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
 
 <app-queue></app-queue>

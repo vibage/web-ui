@@ -1,6 +1,5 @@
 import { BrowserModule } from "@angular/platform-browser";
 import { NgModule } from "@angular/core";
-// import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
 
 import { AppRoutingModule } from "./app-routing.module";
 import { AppComponent } from "./app.component";
@@ -9,16 +8,20 @@ import { HttpClientModule } from "@angular/common/http";
 import { SearchComponent } from "./search/search.component";
 import { TrackComponent } from "./track/track.component";
 import { PlayerComponent } from "./player/player.component";
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from "@angular/material/icon";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSliderModule } from '@angular/material/slider';
+import { CurrentTrackComponent } from './current-track/current-track.component';
+
+
 
 const config: SocketIoConfig = {
   url: "http://localhost:3000"
-  // options: {
-  //   transports: ["websocket", "xhr-polling"]
-  // }
 };
 
 @NgModule({
@@ -27,7 +30,8 @@ const config: SocketIoConfig = {
     QueueComponent,
     SearchComponent,
     TrackComponent,
-    PlayerComponent
+    PlayerComponent,
+    CurrentTrackComponent,
   ],
   imports: [
     BrowserModule,
@@ -36,7 +40,11 @@ const config: SocketIoConfig = {
     MatIconModule,
     MatProgressBarModule,
     BrowserAnimationsModule,
-    SocketIoModule.forRoot(config)
+    SocketIoModule.forRoot(config),
+    MatCardModule,
+    MatButtonModule,
+    MatSliderModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,0 +1,7 @@
+<mat-card>
+  <mat-card-content>
+    <p *ngIf="isOn"> {{ title }} </p>
+    <p *ngIf="!isOn"> No Song Playing </p>
+    <mat-progress-bar color="primary" [value]="progress" class="progressBar" mode="determinate"></mat-progress-bar>
+  </mat-card-content>
+</mat-card>

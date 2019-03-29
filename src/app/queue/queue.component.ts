@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { SpotifyService } from "../spotify.service";
+import { SpotifyService } from "../spotify/spotify.service";
 
 @Component({
   selector: "app-queue",
@@ -13,13 +13,12 @@ export class QueueComponent implements OnInit {
 
   ngOnInit(): void {
     this.spot.getQueue().subscribe(data => {
-      console.log(data);
       this.tracks = data;
     });
 
     this.spot.getTracksSocket().subscribe(data => {
-      console.log("Track data", data);
       this.tracks = data;
+      console.log(data);
     });
   }
 }

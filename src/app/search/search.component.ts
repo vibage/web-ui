@@ -1,5 +1,5 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
-import { SpotifyService } from "../spotify.service";
+import { SpotifyService } from "../spotify/spotify.service";
 import {
   switchMap,
   filter,
@@ -42,13 +42,9 @@ export class SearchComponent implements AfterViewInit {
         filter(q => q.length > 0),
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap(q =>
-          this.spot.makeRequest(
-            `/v1/search?q=${q}&type=album,artist,track`,
-            "GET"
-          )
-        ),
-        map(data => data.tracks.items)
+        switchMap(q => this.spot.omnisearch(q)),
+        tap(x => console.log(x)),
+        map((data: any) => data.tracks.items)
       )
       .subscribe(x => {
         this.tracks = x;

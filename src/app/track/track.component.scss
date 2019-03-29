@@ -6,11 +6,28 @@ div {
 
   p {
     color: white;
-    font-size: .7em;
+    font-size: 1em;
   }
 
-  #deleteIcon {
+  mat-icon {
     align-self: center;
+  }
+
+  #likeDiv {
+    align-self: center;
+    position: relative;
+    width: 24px;
+
+    mat-icon {
+      position: absolute;
+    }
+
+    p {
+      width: 100%;
+      text-align: center;
+      z-index: 2;
+      color: white;
+    }
   }
 }
 
