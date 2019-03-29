@@ -15,7 +15,7 @@ export class TrackComponent implements OnInit {
   @Input() removable!: boolean;
   @Input() likeable!: boolean;
 
-  private isLiked = false;
+  public isLiked = false;
 
   constructor(
     private spot: SpotifyService,
