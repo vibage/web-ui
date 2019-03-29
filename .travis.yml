@@ -3,10 +3,10 @@ node_js:
   - "10"
 
 install:
-  - npm install
+  - yarn install
 
 script:
-  - npm run build
+  - yarn build:prod
 
 deploy:
   provider: s3

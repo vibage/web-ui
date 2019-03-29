@@ -17,6 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 import { CurrentTrackComponent } from './current-track/current-track.component';
+import { ListenComponent } from './listen/listen.component';
 
 
 
@@ -32,6 +33,7 @@ const config: SocketIoConfig = {
     TrackComponent,
     PlayerComponent,
     CurrentTrackComponent,
+    ListenComponent,
   ],
   imports: [
     BrowserModule,
