@@ -3,7 +3,6 @@ import { SpotifyService } from "../spotify/spotify.service";
 import { PlayerService } from './player.service';
 import { interval, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
-import "./spotifyPlayer";
 import { MatSliderChange } from '@angular/material';
 
 

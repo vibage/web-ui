@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of, BehaviorSubject, interval } from "rxjs";
-import { tap, map, take, takeWhile, switchMap } from "rxjs/operators";
+import { tap, take, takeWhile } from "rxjs/operators";
+import { environment } from '../../environments/environment';
 import { Socket } from "ngx-socket-io";
 import { ITrack, IPlayer } from '.';
 
@@ -22,7 +23,8 @@ export class SpotifyService {
   public playerSubject = new BehaviorSubject<IPlayer | null>(null);
 
   constructor(private http: HttpClient, private socket: Socket) {
-    this.baseUrl = `${location.protocol}//${location.hostname}:3000`;
+    this.baseUrl = environment.apiUrl;
+
     console.log("Base URL", this.baseUrl);
 
     // set id
