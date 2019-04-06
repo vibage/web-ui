@@ -13,7 +13,7 @@ import { AuthService } from '../auth.service';
 export class SpotifyService {
   public static token: string;
   private baseUrl!: string;
-  private id = "5c8ebbff82e57027dab01ef0";
+  public hostId = "5c8ebbff82e57027dab01ef0";
 
   public currentTrack!: ITrack;
   public isStarted = false;
@@ -52,7 +52,7 @@ export class SpotifyService {
       return of(SpotifyService.token);
     } else {
       return this.http
-        .get(`${this.baseUrl}/spotify/getToken/${this.id}`, {
+        .get(`${this.baseUrl}/spotify/getToken/${this.hostId}`, {
           responseType: "text"
         })
         .pipe(tap(token => (SpotifyService.token = token)));
@@ -65,15 +65,15 @@ export class SpotifyService {
 
   public setHostId(hostId: string) {
     console.log(`Setting Hosting Id: ${hostId}`);
-    this.id = hostId;
+    this.hostId = hostId;
     localStorage.setItem("hostId", hostId);
-    this.socket.emit("myId", this.id);
+    this.socket.emit("myId", this.hostId);
   }
 
   public addTrack(trackId: string) {
     return this.http.put(`${this.baseUrl}/spotify/addTrack`,
       {
-        id: this.id,
+        id: this.hostId,
         trackId
       },
       {
@@ -88,7 +88,7 @@ export class SpotifyService {
   public removeTrack(track: ITrack) {
     return this.http.post(`${this.baseUrl}/spotify/removeTrack`,
       {
-        id: this.id,
+        id: this.hostId,
         uri: track.uri
       },
       {
@@ -101,13 +101,13 @@ export class SpotifyService {
   }
 
   public omnisearch(query: string) {
-    const url = `${this.baseUrl}/user/${this.id}/search?query=${query}`;
+    const url = `${this.baseUrl}/user/${this.hostId}/search?query=${query}`;
     return this.http.get<ITrack[]>(url);
   }
 
   public startQueue(deviceId) {
     this.isStarted = true;
-    return this.http.post(`${this.baseUrl}/player/startQueue`, { id: this.id, deviceId }, {
+    return this.http.post(`${this.baseUrl}/player/startQueue`, { id: this.hostId, deviceId }, {
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json"
@@ -115,33 +115,33 @@ export class SpotifyService {
     });
   }
 
-  public play() {
-    this.isPlaying = true;
-    return this.http.put(`${this.baseUrl}/player/play`, { id: this.id });
-  }
+  // public play() {
+  //   this.isPlaying = true;
+  //   return this.http.put(`${this.baseUrl}/player/play`, { id: this.hostId });
+  // }
 
-  public pause() {
-    this.isPlaying = false;
-    return this.http.put(`${this.baseUrl}/player/pause`, { id: this.id });
-  }
+  // public pause() {
+  //   this.isPlaying = false;
+  //   return this.http.put(`${this.baseUrl}/player/pause`, { id: this.hostId });
+  // }
 
-  public playPause() {
-    const ob = this.isPlaying ? this.pause : this.play;
-    return ob.bind(this).call();
-  }
+  // public playPause() {
+  //   const ob = this.isPlaying ? this.pause : this.play;
+  //   return ob.bind(this).call();
+  // }
 
   public getQueue() {
-    return this.http.get<ITrack[]>(`${this.baseUrl}/spotify/getTracks/${this.id}`);
+    return this.http.get<ITrack[]>(`${this.baseUrl}/spotify/getTracks/${this.hostId}`);
   }
 
   public nextSong() {
-    return this.http.get<ITrack>(`${this.baseUrl}/spotify/nextTrack/${this.id}`);
+    return this.http.get<ITrack>(`${this.baseUrl}/spotify/nextTrack/${this.hostId}`);
   }
 
   public likeSong(trackId: string) {
     const queuerId = this.auth.getUserId();
     return this.http.post(`${this.baseUrl}/track/like`, {
-      hostId: this.id,
+      hostId: this.hostId,
       trackId,
       queuerId,
     })
@@ -150,7 +150,7 @@ export class SpotifyService {
   public unlikeTrack(trackId: string) {
     const queuerId = this.auth.getUserId();
     return this.http.post(`${this.baseUrl}/track/${trackId}/unlike`, {
-      hostId: this.id,
+      hostId: this.hostId,
       queuerId,
     })
   }
@@ -176,7 +176,7 @@ export class SpotifyService {
   }
 
   public getPlayer(): void {
-    const url = `${this.baseUrl}/player/${this.id}`;
+    const url = `${this.baseUrl}/player/${this.hostId}`;
     this.http.get<IPlayer>(url).subscribe();
   }
 }
