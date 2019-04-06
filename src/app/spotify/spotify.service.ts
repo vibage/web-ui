@@ -5,6 +5,7 @@ import { tap, take, takeWhile } from "rxjs/operators";
 import { environment } from '../../environments/environment';
 import { Socket } from "ngx-socket-io";
 import { ITrack, IPlayer } from '.';
+import { AuthService } from '../auth.service';
 
 @Injectable({
   providedIn: "root"
@@ -22,7 +23,7 @@ export class SpotifyService {
 
   public playerSubject = new BehaviorSubject<IPlayer | null>(null);
 
-  constructor(private http: HttpClient, private socket: Socket) {
+  constructor(private http: HttpClient, private socket: Socket, private auth: AuthService) {
     this.baseUrl = environment.apiUrl;
 
     console.log("Base URL", this.baseUrl);
@@ -129,9 +130,11 @@ export class SpotifyService {
   }
 
   public likeSong(trackUri: string) {
+    const userId = this.auth.getUserId();
     return this.http.post(`${this.baseUrl}/track/like`, {
       id: this.id,
-      trackUri
+      trackUri,
+      userId,
     })
   }
 
