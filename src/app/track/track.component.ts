@@ -36,7 +36,11 @@ export class TrackComponent implements OnInit {
     );
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    if (this.track.isLiked) {
+      this.isLiked = true;
+    }
+  }
 
   add() {
     this.spot.addTrack(this.track.id).subscribe(data => {
@@ -48,7 +52,11 @@ export class TrackComponent implements OnInit {
     this.isLiked = !this.isLiked;
     // send request
     if (this.isLiked) {
-      this.spot.likeSong(this.track.uri).subscribe(res => {
+      this.spot.likeSong(this.track._id).subscribe(res => {
+        console.log(res);
+      })
+    } else {
+      this.spot.unlikeTrack(this.track._id).subscribe(res => {
         console.log(res);
       })
     }

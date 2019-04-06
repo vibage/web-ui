@@ -10,6 +10,8 @@ export interface ITrack {
   id: string;
   duration_ms: number;
   likes: number;
+  _id: string;
+  isLiked: boolean;
 }
 
 export interface IPlayer {
@@ -20,3 +22,9 @@ export interface IPlayer {
   shuffle_state: boolean;
   timestamp: number;
 }
+
+interface IHost {
+  name: string;
+  _id: string;
+}
+

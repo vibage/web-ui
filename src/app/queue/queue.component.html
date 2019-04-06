@@ -1,5 +1,5 @@
 <div>
   <div *ngFor="let track of tracks">
-    <app-track [track]="track" [removable]="true" [likeable]="true"></app-track>
+    <app-track [track]="track" [removable]="isHost" [likeable]="!isHost"></app-track>
   </div>
 </div>

@@ -30,6 +30,7 @@ import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { SigninComponent } from './signin/signin.component';
+import { HostFindComponent } from './host-find/host-find.component';
 
 const config: SocketIoConfig = {
   url: environment.apiUrl,
@@ -45,6 +46,7 @@ const config: SocketIoConfig = {
     CurrentTrackComponent,
     ListenComponent,
     SigninComponent,
+    HostFindComponent,
   ],
   imports: [
     BrowserModule,

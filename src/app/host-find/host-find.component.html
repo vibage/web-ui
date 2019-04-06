@@ -1,0 +1,5 @@
+<p> Tyler </p>
+<div *ngFor="let host of hosts">
+  <p> {{ host.name }} </p>
+  <button (click)="chooseHost(host._id)"> Choose Host </button>
+</div>

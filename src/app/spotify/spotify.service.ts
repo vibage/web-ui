@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of, BehaviorSubject, interval } from "rxjs";
-import { tap, take, takeWhile } from "rxjs/operators";
+import { tap, take, takeWhile, map, switchMap } from "rxjs/operators";
 import { environment } from '../../environments/environment';
 import { Socket } from "ngx-socket-io";
 import { ITrack, IPlayer } from '.';
@@ -25,19 +25,22 @@ export class SpotifyService {
 
   constructor(private http: HttpClient, private socket: Socket, private auth: AuthService) {
     this.baseUrl = environment.apiUrl;
-
     console.log("Base URL", this.baseUrl);
 
-    // set id
-    this.socket.emit("myId", this.id);
-  }
-
-  public setQueueId(id: string) {
-    this.id = id;
+    if (localStorage.getItem("hostId")) {
+      this.setHostId(localStorage.getItem("hostId"));
+    } else {
+      this.setHostId("5c8ebbff82e57027dab01ef0");
+    }
   }
 
   public getTracksSocket() {
-    return this.socket.fromEvent("tracks") as Observable<any>;
+    return this.socket.fromEvent<ITrack[]>("tracks");
+  }
+
+  public getMyLikes() {
+    const queuerId = this.auth.getUserId();
+    return this.http.get(`${this.baseUrl}/queuer/${queuerId}/likes`)
   }
 
   public getPlayerSocket() {
@@ -56,8 +59,15 @@ export class SpotifyService {
     }
   }
 
-  public getNearbyUsers() {
-    return this.http.get(`${this.baseUrl}/users`);
+  public getHosts() {
+    return this.http.get(`${this.baseUrl}/hosts`);
+  }
+
+  public setHostId(hostId: string) {
+    console.log(`Setting Hosting Id: ${hostId}`);
+    this.id = hostId;
+    localStorage.setItem("hostId", hostId);
+    this.socket.emit("myId", this.id);
   }
 
   public addTrack(trackId: string) {
@@ -115,7 +125,6 @@ export class SpotifyService {
     return this.http.put(`${this.baseUrl}/player/pause`, { id: this.id });
   }
 
-  // determine if we should start, play, or pause the queue
   public playPause() {
     const ob = this.isPlaying ? this.pause : this.play;
     return ob.bind(this).call();
@@ -129,12 +138,20 @@ export class SpotifyService {
     return this.http.get<ITrack>(`${this.baseUrl}/spotify/nextTrack/${this.id}`);
   }
 
-  public likeSong(trackUri: string) {
-    const userId = this.auth.getUserId();
+  public likeSong(trackId: string) {
+    const queuerId = this.auth.getUserId();
     return this.http.post(`${this.baseUrl}/track/like`, {
-      id: this.id,
-      trackUri,
-      userId,
+      hostId: this.id,
+      trackId,
+      queuerId,
+    })
+  }
+
+  public unlikeTrack(trackId: string) {
+    const queuerId = this.auth.getUserId();
+    return this.http.post(`${this.baseUrl}/track/${trackId}/unlike`, {
+      hostId: this.id,
+      queuerId,
     })
   }
 
@@ -160,21 +177,6 @@ export class SpotifyService {
 
   public getPlayer(): void {
     const url = `${this.baseUrl}/player/${this.id}`;
-    this.http.get<IPlayer>(url).subscribe(
-      player => {
-      // this.player = player;
-      // this.isPlaying = player.is_playing;
-      // this.currentTrack = player.item ? player.item : null;
-
-      // if (player.status === "204" || !player.item) {
-      //   this.isStarted = false;
-      //   this.playerSubject.next(null);
-      // } else {
-      //   this.isStarted = true;
-      //   this.playerSubject.next(player);
-      // }
-
-      }
-    )
+    this.http.get<IPlayer>(url).subscribe();
   }
 }

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { SpotifyService } from '../spotify/spotify.service';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-current-track',
@@ -7,7 +9,7 @@ import { SpotifyService } from '../spotify/spotify.service';
   styleUrls: ['./current-track.component.scss']
 })
 export class CurrentTrackComponent implements OnInit {
-  constructor(private spot: SpotifyService) { }
+  constructor(private spot: SpotifyService, private fire: AngularFireAuth) { }
 
   public progress!: number;
   public title!: string;
@@ -16,8 +18,6 @@ export class CurrentTrackComponent implements OnInit {
   private timerInterval!: any;
 
   ngOnInit() {
-    this.spot.getPlayer();
-
     this.spot.getPlayerSocket().subscribe((player: Spotify.PlaybackState) => {
       console.log(player);
       clearInterval(this.timerInterval);
@@ -41,6 +41,11 @@ export class CurrentTrackComponent implements OnInit {
 
     });
 
+    this.fire.authState.pipe(
+      take(1),
+    ).subscribe(() => {
+      this.spot.getPlayer();
+    })
 
   }
 }
