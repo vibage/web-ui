@@ -28,3 +28,8 @@ interface IHost {
   _id: string;
 }
 
+export interface IVibe {
+  explicit: boolean;
+  name: string;
+  _id: string;
+}

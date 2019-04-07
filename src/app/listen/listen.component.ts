@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { take } from 'rxjs/operators';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: 'app-listen',
@@ -12,20 +11,17 @@ export class ListenComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private fire: AngularFireAuth,
+    private auth: AuthService,
   ) { }
 
-  ngOnInit() {
-    const userData = localStorage.getItem("user");
-    if (!userData) {
-      this.router.navigate(['login']);
-    }
+  ngOnInit() {}
 
-    this.fire.authState.subscribe(user => {
-      if (!user) {
-        this.router.navigate(['login']);
-      }
-    });
+  addTrack() {
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['search']);
+    } else {
+      alert("Please Login to use this");
+    }
   }
 
 }

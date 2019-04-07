@@ -1,0 +1,6 @@
+<mat-card *ngIf="vibe">
+  <mat-checkbox [(ngModel)]="vibe.explicit" (change)="updateExp($event)"> Explicit </mat-checkbox>
+</mat-card>
+<div *ngIf="!vibe">
+  <p> Loading </p>
+</div>

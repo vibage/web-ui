@@ -22,6 +22,10 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from "@angular/material/icon";
 import { MatProgressBarModule } from "@angular/material/progress-bar";
+import { MatToolbarModule } from "@angular/material/toolbar";
+import { MatCheckboxModule } from "@angular/material/checkbox";
+
+
 
 // Socket
 import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
@@ -31,6 +35,8 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFireAuthModule } from '@angular/fire/auth';
 import { SigninComponent } from './signin/signin.component';
 import { HostFindComponent } from './host-find/host-find.component';
+import { HeaderComponent } from './header/header.component';
+import { VibeSettingsComponent } from './vibe-settings/vibe-settings.component';
 
 const config: SocketIoConfig = {
   url: environment.apiUrl,
@@ -47,6 +53,8 @@ const config: SocketIoConfig = {
     ListenComponent,
     SigninComponent,
     HostFindComponent,
+    HeaderComponent,
+    VibeSettingsComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,6 +67,8 @@ const config: SocketIoConfig = {
     MatCardModule,
     MatButtonModule,
     MatSliderModule,
+    MatToolbarModule,
+    MatCheckboxModule,
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase, 'fizzle'),
     AngularFireAuthModule

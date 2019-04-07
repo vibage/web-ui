@@ -70,6 +70,16 @@ export class SpotifyService {
     this.socket.emit("myId", this.hostId);
   }
 
+  public getHostVibe() {
+    return this.http.get(`${this.baseUrl}/host/${this.hostId}/vibe`);
+  }
+
+  public setHostExplicit(vibeId: string, explicit: boolean) {
+    return this.http.post(`${this.baseUrl}/vibe/${vibeId}/setExplicit`, {
+      explicit,
+    });
+  }
+
   public addTrack(trackId: string) {
     return this.http.put(`${this.baseUrl}/spotify/addTrack`,
       {
@@ -114,21 +124,6 @@ export class SpotifyService {
       }
     });
   }
-
-  // public play() {
-  //   this.isPlaying = true;
-  //   return this.http.put(`${this.baseUrl}/player/play`, { id: this.hostId });
-  // }
-
-  // public pause() {
-  //   this.isPlaying = false;
-  //   return this.http.put(`${this.baseUrl}/player/pause`, { id: this.hostId });
-  // }
-
-  // public playPause() {
-  //   const ob = this.isPlaying ? this.pause : this.play;
-  //   return ob.bind(this).call();
-  // }
 
   public getQueue() {
     return this.http.get<ITrack[]>(`${this.baseUrl}/spotify/getTracks/${this.hostId}`);

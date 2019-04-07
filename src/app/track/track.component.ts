@@ -3,6 +3,7 @@ import { SpotifyService } from "../spotify/spotify.service";
 import { DomSanitizer } from "@angular/platform-browser";
 import { MatIconRegistry } from "@angular/material";
 import { ITrack } from '../spotify';
+import { AuthService } from '../auth.service';
 
 @Component({
   selector: "app-track",
@@ -20,6 +21,7 @@ export class TrackComponent implements OnInit {
 
   constructor(
     private spot: SpotifyService,
+    private auth: AuthService,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
   ) {
@@ -51,6 +53,10 @@ export class TrackComponent implements OnInit {
   }
 
   toggleLike() {
+    if (!this.auth.isLoggedIn()) {
+      alert("Please log in to like songs");
+      return;
+    }
     this.isLiked = !this.isLiked;
     // send request
     if (this.isLiked) {

@@ -1,12 +1,8 @@
 import { Injectable } from '@angular/core';
 import { auth } from 'firebase/app';
 import { AngularFireAuth } from "@angular/fire/auth";
-import { QueuerService } from './listen/queuer.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { SpotifyService } from './spotify/spotify.service';
-
-
 
 @Injectable({
   providedIn: 'root'
@@ -20,18 +16,21 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private fire: AngularFireAuth,
-    private queuerService: QueuerService,
   ) {
 
     this.baseUrl = environment.apiUrl;
 
     this.fire.authState.subscribe(user => {
       this.user = user;
+
+      if (!user) {
+        localStorage.removeItem("user");
+        return;
+      }
+
+      localStorage.setItem('user', JSON.stringify(user));
+
       console.log(user);
-
-      this.queuerService.setUserToken(user.uid);
-
-      // get user data
 
       this.http.get(`${this.baseUrl}/queuer/${user.uid}`).subscribe(data => {
         if (!data) {
@@ -43,9 +42,6 @@ export class AuthService {
         }
       })
 
-      // if user doesn't exist then create
-
-      localStorage.setItem('user', JSON.stringify(user));
     });
   }
 
@@ -78,5 +74,10 @@ export class AuthService {
     } else {
       return null;
     }
+  }
+
+  public isLoggedIn() {
+    const { currentUser } = this.fire.auth;
+    return Boolean(currentUser);
   }
 }
