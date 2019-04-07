@@ -28,12 +28,15 @@ export class PlayerComponent implements OnInit {
   public isPlaying = false;
   public isStarted = false;
   public shouldStart = false;
+
+  public gettingNextSong = false;
+
   public progress = 0;
 
   ngOnInit() {
     window.onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
     if (PlayerComponent.player) {
-      this.start();
+      this.setUpStart();
     }
   }
 
@@ -100,17 +103,21 @@ export class PlayerComponent implements OnInit {
       return;
     }
 
+    this.spot.startQueue(this.deviceId).subscribe(() => {
+      this.setUpStart();
+    });
+  }
+
+  public setUpStart() {
+    console.log("Queue Started");
     this.isStarted = true;
     this.isPlaying = true;
-    this.spot.startQueue(this.deviceId).subscribe(() => {
-      console.log("Queue Started");
       // start timer
       interval(300).pipe(
         switchMap(() => from(PlayerComponent.player.getCurrentState()))
       ).subscribe(state => {
         this.processState(state)
       })
-    });
   }
 
   public processState(state: Spotify.PlaybackState) {
@@ -125,7 +132,12 @@ export class PlayerComponent implements OnInit {
   }
 
   public nextTrack() {
+    if (this.gettingNextSong) {
+      return;
+    }
+    this.gettingNextSong = true;
     this.api.nextTrack().subscribe(() => {
+      this.gettingNextSong = false;
       console.log("Next Song");
     })
   }
