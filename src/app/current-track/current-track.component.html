@@ -3,10 +3,11 @@
     <img *ngIf="imgUrl" [src]="imgUrl" />
     <div>
       <p *ngIf="isOn"> <b> {{ trackName }} </b> </p>
-      <p *ngIf="!isOn"> No Song Playing </p>
+      <p *ngIf="!isOn"> Queue is off, wait for host to start it </p>
       <p *ngIf="isOn"> {{ trackArtist }} </p>
 
-      <mat-progress-bar color="primary" [value]="progress" class="progressBar" mode="determinate"></mat-progress-bar>
+      <mat-progress-bar *ngIf="isOn" color="primary" [value]="progress" class="progressBar" mode="determinate">
+      </mat-progress-bar>
     </div>
   </mat-card-content>
 </mat-card>
