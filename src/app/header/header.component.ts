@@ -14,7 +14,7 @@ export class HeaderComponent implements OnInit {
   public tokens!: number;
 
   constructor(
-    private auth: AuthService,
+    public auth: AuthService,
     private spot: SpotifyService,
     private fire: AngularFireAuth,
   ) { }
@@ -24,7 +24,6 @@ export class HeaderComponent implements OnInit {
       take(1)
     ).subscribe(() => {
       this.spot.getMyTokens().subscribe((tokens: any) => {
-        console.log(tokens);
         this.tokens = tokens;
       });
     })

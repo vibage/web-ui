@@ -48,7 +48,6 @@ export class SpotifyService {
   public getMyTokens() {
     const queuerId = this.auth.getUserId();
     return this.http.get(`${this.baseUrl}/queuer/${queuerId}/tokens`).pipe(
-      tap(tokens => console.log(tokens)),
       tap((tokens: number) => this.userTokenSubject.next(tokens)),
     );
   }
