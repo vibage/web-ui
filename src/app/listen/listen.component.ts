@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { QueuerService } from './queuer.service';
+import { Router } from '@angular/router';
+import { AngularFireAuth } from '@angular/fire/auth';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-listen',
@@ -9,11 +11,21 @@ import { QueuerService } from './queuer.service';
 export class ListenComponent implements OnInit {
 
   constructor(
-    private queuerService: QueuerService,
+    private router: Router,
+    private fire: AngularFireAuth,
   ) { }
 
   ngOnInit() {
-    const token = this.queuerService.getUserToken();
+    const userData = localStorage.getItem("user");
+    if (!userData) {
+      this.router.navigate(['login']);
+    }
+
+    this.fire.authState.subscribe(user => {
+      if (!user) {
+        this.router.navigate(['login']);
+      }
+    });
   }
 
 }

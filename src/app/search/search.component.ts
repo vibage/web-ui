@@ -11,6 +11,8 @@ import {
 import { fromEvent } from "rxjs";
 import { MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
+import { ITrack } from '../spotify';
+import { Router } from '@angular/router';
 
 @Component({
   selector: "app-search",
@@ -20,11 +22,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 export class SearchComponent implements AfterViewInit {
   @ViewChild("searchInput") input: ElementRef;
 
-  public tracks;
+  public tracks!: ITrack;
   public query: string = "";
+
+  public previewTrack!: ITrack;
 
   constructor(
     private spot: SpotifyService,
+    private router: Router,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer,
   ) {
@@ -47,7 +52,21 @@ export class SearchComponent implements AfterViewInit {
         map((data: any) => data.tracks.items)
       )
       .subscribe(x => {
+        console.log(x);
         this.tracks = x;
       });
+  }
+
+  selectTrack(track: ITrack) {
+    this.query = "";
+    this.previewTrack = track;
+    console.log(this.previewTrack);
+  }
+
+  addTrack() {
+    this.spot.addTrack(this.previewTrack.id).subscribe(data => {
+      console.log(data);
+    });
+    this.router.navigate(['queuer']);
   }
 }

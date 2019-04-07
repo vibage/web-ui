@@ -14,6 +14,7 @@ export class TrackComponent implements OnInit {
   @Input() addable!: boolean;
   @Input() removable!: boolean;
   @Input() likeable!: boolean;
+  @Input() addFunc!: (track: ITrack) => void;
 
   public isLiked = false;
 
@@ -43,9 +44,10 @@ export class TrackComponent implements OnInit {
   }
 
   add() {
-    this.spot.addTrack(this.track.id).subscribe(data => {
-      console.log(data);
-    });
+    // this.spot.addTrack(this.track.id).subscribe(data => {
+    //   console.log(data);
+    // });
+    this.addFunc(this.track);
   }
 
   toggleLike() {

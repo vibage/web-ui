@@ -1,12 +1,33 @@
-div {
+.track {
   display: flex;
   padding: 1px 7px;
-  background-color: #030303;
+  background-color: white;
   justify-content: space-between;
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+
+  #actions {
+    display: flex;
+
+    button {
+      background-color: #f5b044;
+      font-size: 1.8em;
+      font-weight: 800;
+      border: 1px white solid;
+      color: grey;
+    }
+
+    p {
+      align-self: center;
+      margin-right: 5px;
+    }
+  }
 
   p {
-    color: white;
+    color: black;
     font-size: 1em;
+    padding: 0px;
+    margin: 0px;
   }
 
   mat-icon {
@@ -17,20 +38,14 @@ div {
     align-self: center;
     position: relative;
     width: 24px;
+    display: flex;
 
     mat-icon {
       position: absolute;
     }
-
-    p {
-      width: 100%;
-      text-align: center;
-      z-index: 2;
-      color: white;
-    }
   }
 }
 
-div:hover {
-  background-color: #131313;
+.track:hover {
+  background-color: lightgrey;
 }

@@ -13,6 +13,11 @@ export class CurrentTrackComponent implements OnInit {
 
   public progress!: number;
   public title!: string;
+
+  public trackName: string;
+  public trackArtist: string;
+  public imgUrl: string;
+
   public isOn!: boolean;
 
   private timerInterval!: any;
@@ -25,9 +30,13 @@ export class CurrentTrackComponent implements OnInit {
       if (!player) return;
 
       let { track_window, position, duration, paused } = player;
-      const { name, artists } = track_window.current_track
+      const { name, artists, album } = track_window.current_track
 
-      this.title = `${name} - ${artists[0].name}`
+      this.title = `${name} - ${artists[0].name}`;
+
+      this.trackName = name;
+      this.trackArtist = artists[0].name;
+      this.imgUrl = album.images[0].url;
 
       this.progress = (position / duration) * 100;
 

@@ -3,5 +3,13 @@
   <input type="text" #searchInput />
 </div>
 <div *ngIf="query.length > 0">
-  <app-track *ngFor="let track of tracks" [track]="track" [addable]="true"></app-track>
+  <app-track *ngFor="let track of tracks" [track]="track" [addable]="true" [addFunc]="selectTrack.bind(this)">
+  </app-track>
+</div>
+
+<div id="trackPreview" *ngIf="previewTrack">
+  <img [src]="previewTrack.album.images[0].url" />
+  <h1><b>{{ previewTrack.artists[0].name }}</b></h1>
+  <h3> {{ previewTrack.name }} </h3>
+  <button mat-raised-button (click)="addTrack()"> Confirm Song </button>
 </div>

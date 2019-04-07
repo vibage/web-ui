@@ -1,5 +1,7 @@
-<p> Tyler </p>
-<div *ngFor="let host of hosts">
-  <p> {{ host.name }} </p>
-  <button (click)="chooseHost(host._id)"> Choose Host </button>
-</div>
+<mat-card>
+  <h1> Host Vibes Near You </h1>
+  <mat-card class="host" *ngFor="let host of hosts">
+    <p> {{ host.name }} </p>
+    <button mat-raised-button (click)="chooseHost(host._id)"> Choose Host </button>
+  </mat-card>
+</mat-card>

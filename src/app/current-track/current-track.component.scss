@@ -1,7 +1,26 @@
-.progressBar {
-  margin: 10px 0px;
-}
-
 mat-card {
   margin: 10px;
+
+  mat-card-content {
+    display: flex;
+
+    img {
+      height: 100px;
+    }
+
+    div {
+      width: 100%;
+      padding: 5px;
+
+      b {
+        font-size: 1.8em;
+      }
+
+      .progressBar {
+        margin: 10px 0px;
+        width: 100%;
+      }
+    }
+
+  }
 }

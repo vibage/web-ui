@@ -66,6 +66,11 @@ export class AuthService {
     return this.fire.auth.currentUser;
   }
 
+  public logout() {
+    this.fire.auth.signOut();
+    localStorage.removeItem("user");
+  }
+
   public getUserId() {
     const { currentUser } = this.fire.auth;
     if (currentUser) {

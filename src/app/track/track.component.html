@@ -1,14 +1,16 @@
-<div>
-  <p>{{ track.name }} - {{ track.artist || track.artists[0].name }}</p>
+<div class="track">
+  <div>
+    <p> <b> {{ track.name }} </b> </p>
+    <p> {{ track.artist || track.artists[0].name }} </p>
+  </div>
   <div id="actions">
-    <button class="addable" *ngIf="addable" (click)="add()">Add Track</button>
+    <button mat-fab class="addable" *ngIf="addable" (click)="add()">
+      +
+    </button>
+    <p> {{ track.likes }} </p>
     <div id="likeDiv" (click)="toggleLike()" *ngIf="likeable">
-      <p> {{ track.likes }} </p>
       <mat-icon svgIcon="heart" *ngIf="isLiked"></mat-icon>
       <mat-icon svgIcon="heart_outline" *ngIf="!isLiked"></mat-icon>
-    </div>
-    <div *ngIf="!likeable">
-      <p> {{ track.likes }} </p>
     </div>
     <mat-icon svgIcon="delete" id="deleteIcon" *ngIf="removable" (click)="remove()"></mat-icon>
   </div>

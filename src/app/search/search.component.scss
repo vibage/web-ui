@@ -12,3 +12,31 @@ input {
   border-bottom: 2px solid #CCC;
   background-color: #333;
 }
+
+#trackPreview {
+  width: 90%;
+  height: 90%;
+  padding: 20px;
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  background-color: white;
+  border: solid black 2px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  img {
+    width: 400px;
+  }
+
+  button {
+    background-color: #f5b044;
+    color: white;
+    font-size: 2.3em;
+    padding: 30px;
+  }
+
+}

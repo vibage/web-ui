@@ -1,5 +1,9 @@
 <div class="formGroup">
-  <button type="button" (click)="authService.GoogleAuth()">
+  <button (click)="authService.GoogleAuth()">
     Log in with Google
+  </button>
+
+  <button (click)="authService.logout()">
+    Log out
   </button>
 </div>

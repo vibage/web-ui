@@ -3,5 +3,18 @@
 body {
   margin: 0px;
   padding: 0px;
-  background-color: #BBB;
+  background-color: #FFF;
+  overflow-x: hidden;
+}
+
+body:before {
+  content: "";
+  position: absolute;
+  top: -500px;
+  bottom: 0;
+  left: -250px;
+  width: 1400px;
+  z-index: -1;
+  background: #f5b044;
+  transform: skew(-55deg);
 }
