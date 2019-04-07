@@ -1,9 +1,11 @@
 <mat-toolbar>
   <img src="assets/logo.png" height="60" />
-  <span>Vibage</span>
+  <h1>Vibage</h1>
 
   <button mat-raised-button (click)="login()"> Login </button>
   <button mat-raised-button (click)="logout()"> Logout </button>
 
-  <p *ngIf="auth.getUser()"> {{ auth.getUser().name }}</p>
+  <p *ngIf="auth.getUser()"> {{ auth.getUser().displayName }} </p>
+  <p *ngIf="tokens"> {{ tokens }} </p>
+
 </mat-toolbar>

@@ -23,6 +23,8 @@ export class SpotifyService {
 
   public playerSubject = new BehaviorSubject<IPlayer | null>(null);
 
+  public userTokenSubject = new BehaviorSubject<number>(0);
+
   constructor(private http: HttpClient, private socket: Socket, private auth: AuthService) {
     this.baseUrl = environment.apiUrl;
     console.log("Base URL", this.baseUrl);
@@ -40,7 +42,15 @@ export class SpotifyService {
 
   public getMyLikes() {
     const queuerId = this.auth.getUserId();
-    return this.http.get(`${this.baseUrl}/queuer/${queuerId}/likes`)
+    return this.http.get(`${this.baseUrl}/queuer/${queuerId}/likes`);
+  }
+
+  public getMyTokens() {
+    const queuerId = this.auth.getUserId();
+    return this.http.get(`${this.baseUrl}/queuer/${queuerId}/tokens`).pipe(
+      tap(tokens => console.log(tokens)),
+      tap((tokens: number) => this.userTokenSubject.next(tokens)),
+    );
   }
 
   public getPlayerSocket() {
@@ -81,10 +91,13 @@ export class SpotifyService {
   }
 
   public addTrack(trackId: string) {
+    const queuerId = this.auth.getUserId();
+
     return this.http.put(`${this.baseUrl}/spotify/addTrack`,
       {
-        id: this.hostId,
-        trackId
+        hostId: this.hostId,
+        trackId,
+        queuerId,
       },
       {
         headers: {
@@ -92,6 +105,8 @@ export class SpotifyService {
           "Content-Type": "application/json"
         }
       }
+    ).pipe(
+      tap(() => this.getMyTokens().subscribe()),
     )
   }
 
