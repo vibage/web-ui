@@ -32,6 +32,9 @@ export class PlayerComponent implements OnInit {
 
   ngOnInit() {
     window.onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
+    if (PlayerComponent.player) {
+      this.start();
+    }
   }
 
   public makePlayer() {
