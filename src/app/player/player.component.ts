@@ -4,6 +4,8 @@ import { PlayerService } from './player.service';
 import { interval, from } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { MatSliderChange } from '@angular/material';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth.service';
 
 
 @Component({
@@ -12,73 +14,96 @@ import { MatSliderChange } from '@angular/material';
   styleUrls: ["./player.component.scss"]
 })
 export class PlayerComponent implements OnInit {
-  constructor(private api: PlayerService, private spot: SpotifyService) {}
+  constructor(
+    private api: PlayerService,
+    private spot: SpotifyService,
+    private router: Router,
+    private auth: AuthService,
+  ) {}
 
-  private player!: Spotify.SpotifyPlayer;
+  static player: Spotify.SpotifyPlayer;
   private deviceId!: string;
 
   public playerState!: Spotify.PlaybackState;
   public isPlaying = false;
   public isStarted = false;
+  public shouldStart = false;
   public progress = 0;
 
   ngOnInit() {
-    // this.waitForSongEnd();
-    window.onSpotifyWebPlaybackSDKReady = () => {
-      console.log("Creating Player");
+    window.onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
+  }
 
-      this.player = new Spotify.Player({
-        name: "Fizzle Player",
-        getOAuthToken: cb => {
-          this.spot.getToken().subscribe(token => {
-            cb(token);
-          });
-        }
-      });
+  public makePlayer() {
+    // if player has already been created
+    if (PlayerComponent.player) {
+      return;
+    }
 
-      this.player.connect();
+    console.log("Creating Player");
 
-      // Error handling
-      this.player.addListener("initialization_error", ({ message }) => {
-        console.error(message);
-      });
-      this.player.addListener("authentication_error", ({ message }) => {
-        console.error(message);
-      });
-      this.player.addListener("account_error", ({ message }) => {
-        console.error(message);
-      });
-      this.player.addListener("playback_error", ({ message }) => {
-        console.error(message);
-      });
+    PlayerComponent.player = new Spotify.Player({
+      name: "Fizzle Player",
+      getOAuthToken: cb => {
+        this.spot.getToken().subscribe(token => {
+          cb(token);
+        });
+      }
+    });
 
-      // Playback status updates
-      this.player.addListener("player_state_changed", state => {
-        this.api.sendPlayerState(state).subscribe(() => {});
-        this.processState(state);
-      });
+    const { player } = PlayerComponent;
 
-      // Ready
-      this.player.addListener("ready", ({ device_id }) => {
-        console.log("Ready with Device ID", device_id);
-        this.deviceId = device_id;
-      });
+    player.connect();
 
-      // Not Ready
-      this.player.addListener("not_ready", ({ device_id }) => {
-        console.log("Device ID has gone offline", device_id);
-      });
-    };
+    // Error handling
+    player.addListener("initialization_error", ({ message }) => {
+      console.error(message);
+    });
+    player.addListener("authentication_error", ({ message }) => {
+      console.error(message);
+    });
+    player.addListener("account_error", ({ message }) => {
+      console.error(message);
+    });
+    player.addListener("playback_error", ({ message }) => {
+      console.error(message);
+    });
+
+    // Playback status updates
+    player.addListener("player_state_changed", state => {
+      this.api.sendPlayerState(state).subscribe(() => {});
+      this.processState(state);
+    });
+
+    // Ready
+    player.addListener("ready", ({ device_id }) => {
+      console.log("Ready with Device ID", device_id);
+      this.deviceId = device_id;
+      if (this.shouldStart) {
+        this.start();
+      }
+    });
+
+    // Not Ready
+    player.addListener("not_ready", ({ device_id }) => {
+      console.log("Device ID has gone offline", device_id);
+    });
   }
 
   public start() {
+    if (!PlayerComponent.player) {
+      this.makePlayer();
+      this.shouldStart = true;
+      return;
+    }
+
     this.isStarted = true;
     this.isPlaying = true;
     this.spot.startQueue(this.deviceId).subscribe(() => {
       console.log("Queue Started");
       // start timer
       interval(300).pipe(
-        switchMap(() => from(this.player.getCurrentState()))
+        switchMap(() => from(PlayerComponent.player.getCurrentState()))
       ).subscribe(state => {
         this.processState(state)
       })
@@ -104,16 +129,28 @@ export class PlayerComponent implements OnInit {
 
   public play() {
     this.isPlaying = true;
-    this.player.resume();
+    PlayerComponent.player.resume();
   }
 
   public pause() {
     this.isPlaying = false;
-    this.player.pause();
+    PlayerComponent.player.pause();
   }
 
   public seek(event: MatSliderChange) {
     const seekTimeMs = (event.value / 100) * this.playerState.duration;
-    this.player.seek(seekTimeMs);
+    PlayerComponent.player.seek(seekTimeMs);
+  }
+
+  public addTrack() {
+    if (this.auth.isLoggedIn()) {
+      this.router.navigate(['search']);
+    } else {
+      alert("Please Login to add songs");
+    }
+  }
+
+  public openVibe() {
+    this.router.navigate(['vibe']);
   }
 }

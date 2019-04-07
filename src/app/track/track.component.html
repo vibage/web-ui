@@ -7,7 +7,7 @@
     <button mat-fab class="addable" *ngIf="addable" (click)="add()">
       +
     </button>
-    <p> {{ track.likes }} </p>
+    <p *ngIf="!addable" id="likeCount"> {{ track.likes }} </p>
     <div id="likeDiv" (click)="toggleLike()" *ngIf="likeable">
       <mat-icon svgIcon="heart" *ngIf="isLiked"></mat-icon>
       <mat-icon svgIcon="heart_outline" *ngIf="!isLiked"></mat-icon>

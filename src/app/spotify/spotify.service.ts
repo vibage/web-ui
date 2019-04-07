@@ -112,7 +112,7 @@ export class SpotifyService {
   public removeTrack(track: ITrack) {
     return this.http.post(`${this.baseUrl}/spotify/removeTrack`,
       {
-        id: this.hostId,
+        hostId: this.hostId,
         uri: track.uri
       },
       {

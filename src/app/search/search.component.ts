@@ -12,7 +12,7 @@ import { fromEvent } from "rxjs";
 import { MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ITrack } from '../spotify';
-import { Router } from '@angular/router';
+import {Location} from '@angular/common';
 
 @Component({
   selector: "app-search",
@@ -29,7 +29,7 @@ export class SearchComponent implements AfterViewInit {
 
   constructor(
     private spot: SpotifyService,
-    private router: Router,
+    private location: Location,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer,
   ) {
@@ -58,15 +58,17 @@ export class SearchComponent implements AfterViewInit {
   }
 
   selectTrack(track: ITrack) {
-    this.query = "";
     this.previewTrack = track;
-    console.log(this.previewTrack);
   }
 
   addTrack() {
     this.spot.addTrack(this.previewTrack.id).subscribe(data => {
       console.log(data);
     });
-    this.router.navigate(['queuer']);
+    this.location.back()
+  }
+
+  close() {
+    this.previewTrack = null;
   }
 }

@@ -3,6 +3,8 @@ import { AuthService } from '../auth.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { AngularFireAuth } from '@angular/fire/auth';
 import { take } from 'rxjs/operators';
+import { MatIconRegistry } from '@angular/material';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-header',
@@ -13,16 +15,26 @@ export class HeaderComponent implements OnInit {
 
   public tokens!: number;
 
+  public isLoggedIn: boolean;
+
   constructor(
     public auth: AuthService,
     private spot: SpotifyService,
     private fire: AngularFireAuth,
-  ) { }
+    iconRegistry: MatIconRegistry,
+    sanitizer: DomSanitizer
+  ) {
+    iconRegistry.addSvgIcon(
+      "token",
+      sanitizer.bypassSecurityTrustResourceUrl("assets/icons/token.svg")
+    );
+  }
 
   ngOnInit() {
     this.fire.authState.pipe(
       take(1)
-    ).subscribe(() => {
+    ).subscribe((user: any) => {
+      this.isLoggedIn = Boolean(user);
       this.spot.getMyTokens().subscribe((tokens: any) => {
         this.tokens = tokens;
       });
@@ -34,10 +46,13 @@ export class HeaderComponent implements OnInit {
   }
 
   login() {
-    this.auth.GoogleAuth();
+    this.auth.GoogleAuth().then(() => {
+      this.isLoggedIn = true;
+    });
   }
 
   logout() {
+    this.isLoggedIn = false;
     this.auth.logout();
   }
 

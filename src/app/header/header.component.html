@@ -1,11 +1,11 @@
-<mat-toolbar>
+<mat-toolbar color="warm">
   <img src="assets/logo.png" height="60" />
-  <h1>Vibage</h1>
 
-  <button mat-raised-button (click)="login()"> Login </button>
-  <button mat-raised-button (click)="logout()"> Logout </button>
+  <span *ngIf="isLoggedIn" id="tokenDiv">
+    <mat-icon svgIcon="token"></mat-icon>
+    <span>{{ tokens }}</span>
+  </span>
 
-  <p *ngIf="auth.getUser()"> {{ auth.getUser().displayName }} </p>
-  <p *ngIf="tokens"> {{ tokens }} </p>
-
+  <button *ngIf="!isLoggedIn" mat-raised-button (click)="login()"> Login </button>
+  <button *ngIf="isLoggedIn" mat-raised-button (click)="logout()"> Logout </button>
 </mat-toolbar>

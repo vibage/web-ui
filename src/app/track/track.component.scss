@@ -1,6 +1,6 @@
 .track {
   display: flex;
-  padding: 1px 7px;
+  padding: 1px 15px;
   background-color: white;
   justify-content: space-between;
   border-top: 1px solid black;
@@ -34,6 +34,11 @@
     align-self: center;
   }
 
+  #likeCount {
+    font-size: 1.4em;
+    margin-left: 30px;
+  }
+
   #likeDiv {
     align-self: center;
     position: relative;
@@ -42,6 +47,9 @@
 
     mat-icon {
       position: absolute;
+      font-size: 30px;
+      height: 30px;
+      width: 30px;
     }
   }
 }

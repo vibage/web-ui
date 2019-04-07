@@ -53,6 +53,7 @@ export class AuthService {
     try {
       const result = this.fire.auth.signInWithPopup(provider);
       console.log(result);
+      return result;
     } catch(err) {
       console.log(err);
     }

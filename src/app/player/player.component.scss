@@ -4,4 +4,30 @@
 
 mat-card {
   margin: 10px;
+
+  mat-card-content {
+    display: flex;
+
+    img {
+      margin-top: auto;
+      margin-bottom: auto;
+      height: 100px;
+      max-width: 30%;
+    }
+
+    div {
+      width: 100%;
+      padding: 5px;
+    }
+
+  }
+}
+
+#addTrackButton {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  right: 50%;
+  font-size: 3em;
+  margin: auto;
 }
