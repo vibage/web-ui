@@ -13,6 +13,8 @@ import { AuthService } from '../auth.service';
 export class SpotifyService {
   public static token: string;
   private baseUrl!: string;
+
+  public clientId = "a7e126eaee8b4c6f9e689a8b3b15efa5";
   public hostId = "5c8ebbff82e57027dab01ef0";
 
   public currentTrack!: ITrack;
@@ -34,6 +36,20 @@ export class SpotifyService {
     } else {
       this.setHostId("5c8ebbff82e57027dab01ef0");
     }
+  }
+
+  public getHostToken(code: string) {
+    return this.http.post(`${this.baseUrl}/spotify?code=${code}`, {
+      id: this.clientId
+    })
+  }
+
+  public createHost(code: string, uid: string, name: string) {
+    return this.http.post(`${this.baseUrl}/host/register`, {
+      code,
+      uid,
+      name,
+    })
   }
 
   public getTracksSocket() {

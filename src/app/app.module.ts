@@ -37,6 +37,7 @@ import { SigninComponent } from './signin/signin.component';
 import { HostFindComponent } from './host-find/host-find.component';
 import { HeaderComponent } from './header/header.component';
 import { VibeSettingsComponent } from './vibe-settings/vibe-settings.component';
+import { HostLoginComponent } from './host-login/host-login.component';
 
 const config: SocketIoConfig = {
   url: environment.apiUrl,
@@ -55,6 +56,7 @@ const config: SocketIoConfig = {
     HostFindComponent,
     HeaderComponent,
     VibeSettingsComponent,
+    HostLoginComponent,
   ],
   imports: [
     BrowserModule,
@@ -76,4 +78,13 @@ const config: SocketIoConfig = {
   providers: [],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    console.log(JSON.stringify(location));
+    const code = new URL(location.href).searchParams.get("code");
+    if (code) {
+      location.assign(`${location.origin}/#/hostLogin?code=${code}`);
+      console.log(code);
+    }
+  }
+}
