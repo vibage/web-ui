@@ -1,0 +1,7 @@
+<mat-card *ngIf="user">
+  <h1> {{ user.name }} </h1>
+  <button (click)="getCode()" mat-raised-button color="primary" [disabled]="user.spotifyId">
+    Login to spotify
+  </button>
+  <p *ngIf="user.spotifyId"> Authorized! </p>
+</mat-card>
