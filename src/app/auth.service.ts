@@ -3,47 +3,53 @@ import { auth } from 'firebase/app';
 import { AngularFireAuth } from "@angular/fire/auth";
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
+import { tap, switchMap, filter } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+
+export interface IUser {
+  name: string;
+  uid: string;
+  spotifyId?: string;
+  accessToken?: string;
+  tokens: number;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-
   private baseUrl: string;
+  public user: IUser;
 
-  public user: firebase.User;
+  public $user!: Observable<IUser>;
 
   constructor(
     private http: HttpClient,
     private fire: AngularFireAuth,
   ) {
-
     this.baseUrl = environment.apiUrl;
 
-    this.fire.authState.subscribe(user => {
-      this.user = user;
+    this.$user = this.fire.authState.pipe(
+      filter(user => Boolean(user)),
+      switchMap(({ uid }) => this.http.get<IUser>(`${this.baseUrl}/user/${uid}`))
+    )
 
-      if (!user) {
-        localStorage.removeItem("user");
-        return;
-      }
-
-      localStorage.setItem('user', JSON.stringify(user));
-
+    this.$user.subscribe(user => {
       console.log(user);
-
-      this.http.get(`${this.baseUrl}/queuer/${user.uid}`).subscribe(data => {
-        if (!data) {
-          this.http.post(`${this.baseUrl}/queuer`, {queuerId: user.uid}).subscribe(data => {
-            console.log(data);
-          })
-        } else {
-          console.log(data);
-        }
-      })
-
+      this.user = user;
     });
+
   }
+
+  public getUser() {
+    if (this.user) {
+      return of(this.user);
+    } else {
+      return this.$user;
+    }
+  }
+
+  
 
   public GoogleAuth() {
     return this.AuthLogin(new auth.GoogleAuthProvider())
@@ -52,15 +58,19 @@ export class AuthService {
   public async AuthLogin(provider) {
     try {
       const result = this.fire.auth.signInWithPopup(provider);
-      console.log(result);
       return result;
     } catch(err) {
       console.log(err);
     }
   }
 
-  public getUser() {
-    return this.fire.auth.currentUser;
+  public createUser(uid: string, name: string) {
+    return this.http.post<IUser>(`${this.baseUrl}/user`, {
+      uid,
+      name,
+    }).pipe(
+      tap(user => this.user = user)
+    )
   }
 
   public logout() {
@@ -68,17 +78,23 @@ export class AuthService {
     localStorage.removeItem("user");
   }
 
-  public getUserId() {
-    const { currentUser } = this.fire.auth;
-    if (currentUser) {
-      return currentUser.uid;
-    } else {
-      return null;
-    }
-  }
-
   public isLoggedIn() {
     const { currentUser } = this.fire.auth;
     return Boolean(currentUser);
+  }
+
+  public get uid() {
+    if (!this.user) return null;
+    return this.user.uid;
+  }
+
+  public addSpotData(code: string) {
+    return this.getUser().pipe(
+      switchMap(({ uid }) => this.http.post<IUser>(`${this.baseUrl}/user/spotify`, {
+        code,
+        uid,
+      })),
+      tap(user => this.user = user),
+    )
   }
 }

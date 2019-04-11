@@ -20,7 +20,7 @@ export class ListenComponent implements OnInit {
     if (this.auth.isLoggedIn()) {
       this.router.navigate(['search']);
     } else {
-      alert("Please Login to use this");
+      alert("Please Login to add songs");
     }
   }
 

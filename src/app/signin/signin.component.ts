@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-signin',
@@ -10,17 +8,28 @@ import { Router } from '@angular/router';
 })
 export class SigninComponent implements OnInit {
 
+  public uid: string;
+  public name: string;
+
   constructor(
-    public authService: AuthService,
-    private fire: AngularFireAuth,
-    private router: Router,
+    public auth: AuthService,
   ) { }
 
-  ngOnInit() {
-    this.fire.authState.subscribe(user => {
-      if (user) {
-        this.router.navigate(['queuer']);
+  ngOnInit() {}
+
+  googleLogin() {
+    this.auth.GoogleAuth().then(({ user }) => {
+      console.log(user);
+      this.uid = user.uid;
+      if (!this.name) {
+        this.name = user.displayName;
       }
+    });
+  }
+
+  register() {
+    this.auth.createUser(this.uid, this.name).subscribe((data) => {
+      console.log(data);
     });
   }
 

@@ -1,9 +1,10 @@
-<div class="formGroup">
-  <button (click)="authService.GoogleAuth()">
+<mat-card>
+  <button (click)="googleLogin()" [disabled]="uid && uid.length > 0" mat-raised-button color="primary">
     Log in with Google
   </button>
+  <input [(ngModel)]="name" />
 
-  <button (click)="authService.logout()">
-    Log out
+  <button (click)="register()">
+    Create Account
   </button>
-</div>
+</mat-card>

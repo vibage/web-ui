@@ -1,9 +1,6 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { SpotifyService } from "../spotify/spotify.service";
 import { ITrack } from '../spotify';
-import { map, take } from 'rxjs/operators';
-import { AuthService } from '../auth.service';
-import { AngularFireAuth } from '@angular/fire/auth';
 
 @Component({
   selector: "app-queue",
@@ -17,26 +14,14 @@ export class QueueComponent implements OnInit {
 
   public isHost!: boolean;
 
-  constructor(private spot: SpotifyService, private fire: AngularFireAuth) {}
+  constructor(private spot: SpotifyService) {}
 
   ngOnInit(): void {
-    this.fire.authState.pipe(
-      take(1)
-    ).subscribe(() => {
-      this.getTracks();
-    })
+    this.spot.$tracks.subscribe(tracks => {
+      this.formatTracks(tracks);
+    });
 
     this.isHost = this.host === "true";
-  }
-
-  public getTracks() {
-    this.spot.getQueue().subscribe(data => {
-      this.formatTracks(data);
-    });
-
-    this.spot.getTracksSocket().subscribe(data => {
-      this.formatTracks(data);
-    });
   }
 
   formatTracks(tracks: ITrack[]) {

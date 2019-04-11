@@ -4,6 +4,7 @@ import { DomSanitizer } from "@angular/platform-browser";
 import { MatIconRegistry } from "@angular/material";
 import { ITrack } from '../spotify';
 import { AuthService } from '../auth.service';
+import { PlayerService } from '../player/player.service';
 
 @Component({
   selector: "app-track",
@@ -22,6 +23,7 @@ export class TrackComponent implements OnInit {
   constructor(
     private spot: SpotifyService,
     private auth: AuthService,
+    private player: PlayerService,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
   ) {
@@ -46,9 +48,6 @@ export class TrackComponent implements OnInit {
   }
 
   add() {
-    // this.spot.addTrack(this.track.id).subscribe(data => {
-    //   console.log(data);
-    // });
     this.addFunc(this.track);
   }
 
@@ -71,7 +70,7 @@ export class TrackComponent implements OnInit {
   }
 
   remove() {
-    this.spot.removeTrack(this.track).subscribe(data => {
+    this.player.removeTrack(this.track).subscribe(data => {
       console.log(data);
     });
   }

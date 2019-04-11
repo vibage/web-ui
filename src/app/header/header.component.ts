@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../auth.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { AngularFireAuth } from '@angular/fire/auth';
-import { take } from 'rxjs/operators';
 import { MatIconRegistry } from '@angular/material';
 import { DomSanitizer } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -15,12 +15,11 @@ export class HeaderComponent implements OnInit {
 
   public tokens!: number;
 
-  public isLoggedIn: boolean;
-
   constructor(
     public auth: AuthService,
     private spot: SpotifyService,
     private fire: AngularFireAuth,
+    private router: Router,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
   ) {
@@ -31,10 +30,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fire.authState.pipe(
-      take(1)
-    ).subscribe((user: any) => {
-      this.isLoggedIn = Boolean(user);
+    this.fire.authState.subscribe((user: any) => {
       this.spot.getMyTokens().subscribe((tokens: any) => {
         this.tokens = tokens;
       });
@@ -45,15 +41,22 @@ export class HeaderComponent implements OnInit {
     })
   }
 
+  get isLoggedIn() {
+    return this.auth.isLoggedIn();
+  }
+
   login() {
     this.auth.GoogleAuth().then(() => {
-      this.isLoggedIn = true;
+      alert("Authed");
     });
   }
 
   logout() {
-    this.isLoggedIn = false;
     this.auth.logout();
+  }
+
+  goToAccount() {
+    this.router.navigate(['account']);
   }
 
 }

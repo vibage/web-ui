@@ -6,6 +6,10 @@
     <span>{{ tokens }}</span>
   </span>
 
-  <button *ngIf="!isLoggedIn" mat-raised-button (click)="login()"> Login </button>
-  <button *ngIf="isLoggedIn" mat-raised-button (click)="logout()"> Logout </button>
+  <span>
+    <button *ngIf="isLoggedIn" mat-raised-button (click)="goToAccount()"> Account </button>
+
+    <button *ngIf="!isLoggedIn" mat-raised-button (click)="login()"> Login </button>
+    <button *ngIf="isLoggedIn" mat-raised-button (click)="logout()"> Logout </button>
+  </span>
 </mat-toolbar>

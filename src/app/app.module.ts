@@ -15,6 +15,7 @@ import { SearchComponent } from "./search/search.component";
 import { TrackComponent } from "./track/track.component";
 import { PlayerComponent } from "./player/player.component";
 import { QueueComponent } from "./queue/queue.component";
+import { HostRegisterComponent } from "./signin/host-register/host-register.component"
 
 // Material
 import { MatCardModule } from '@angular/material/card';
@@ -37,7 +38,7 @@ import { SigninComponent } from './signin/signin.component';
 import { HostFindComponent } from './host-find/host-find.component';
 import { HeaderComponent } from './header/header.component';
 import { VibeSettingsComponent } from './vibe-settings/vibe-settings.component';
-import { HostLoginComponent } from './host-login/host-login.component';
+import { AccountComponent } from './account/account.component';
 
 const config: SocketIoConfig = {
   url: environment.apiUrl,
@@ -56,7 +57,8 @@ const config: SocketIoConfig = {
     HostFindComponent,
     HeaderComponent,
     VibeSettingsComponent,
-    HostLoginComponent,
+    HostRegisterComponent,
+    AccountComponent,
   ],
   imports: [
     BrowserModule,
@@ -80,11 +82,9 @@ const config: SocketIoConfig = {
 })
 export class AppModule {
   constructor() {
-    console.log(JSON.stringify(location));
     const code = new URL(location.href).searchParams.get("code");
     if (code) {
-      location.assign(`${location.origin}/#/hostLogin?code=${code}`);
-      console.log(code);
+      location.assign(`${location.origin}/#/account?code=${code}`);
     }
   }
 }

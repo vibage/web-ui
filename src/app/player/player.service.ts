@@ -38,4 +38,19 @@ export class PlayerService {
     return this.http.put(`${this.baseUrl}/player/pause`, { id: this.spot.hostId });
   }
 
+  public removeTrack(track: ITrack) {
+    return this.http.post(`${this.baseUrl}/spotify/removeTrack`,
+      {
+        hostId: this.spot.hostId,
+        uri: track.uri
+      },
+      {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json"
+        }
+      }
+    );
+  }
+
 }

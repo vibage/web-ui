@@ -51,7 +51,7 @@ export class PlayerComponent implements OnInit {
     PlayerComponent.player = new Spotify.Player({
       name: "Fizzle Player",
       getOAuthToken: cb => {
-        this.spot.getToken().subscribe(token => {
+        this.spot.getAccessToken().subscribe(token => {
           cb(token);
         });
       }
