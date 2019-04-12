@@ -1,13 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { SpotifyService } from '../spotify/spotify.service';
+import { Component, OnInit } from "@angular/core";
+import { SpotifyService } from "../spotify/spotify.service";
+import { QueueService } from "../spotify/queue.service";
 
 @Component({
-  selector: 'app-current-track',
-  templateUrl: './current-track.component.html',
-  styleUrls: ['./current-track.component.scss']
+  selector: "app-current-track",
+  templateUrl: "./current-track.component.html",
+  styleUrls: ["./current-track.component.scss"]
 })
 export class CurrentTrackComponent implements OnInit {
-  constructor(private spot: SpotifyService) { }
+  constructor(
+    private spot: SpotifyService,
+    private queueService: QueueService
+  ) {}
 
   public progress!: number;
   public title!: string;
@@ -21,14 +25,17 @@ export class CurrentTrackComponent implements OnInit {
   private timerInterval!: any;
 
   ngOnInit() {
-    this.spot.$player.subscribe((player: Spotify.PlaybackState) => {
+    this.queueService.$player.subscribe((player: Spotify.PlaybackState) => {
       console.log(player);
       clearInterval(this.timerInterval);
       this.isOn = Boolean(player);
-      if (!player) return;
+      if (!player) {
+        return;
+      }
 
-      let { track_window, position, duration, paused } = player;
-      const { name, artists, album } = track_window.current_track
+      let { position } = player;
+      const { track_window, duration, paused } = player;
+      const { name, artists, album } = track_window.current_track;
 
       this.title = `${name} - ${artists[0].name}`;
 
@@ -42,10 +49,9 @@ export class CurrentTrackComponent implements OnInit {
         const intervalTime = 300;
         this.timerInterval = setInterval(() => {
           position += intervalTime;
-          this.progress = (position / duration) * 100
-        }, intervalTime)
+          this.progress = (position / duration) * 100;
+        }, intervalTime);
       }
-
     });
   }
 }

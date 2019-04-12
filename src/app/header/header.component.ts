@@ -1,18 +1,17 @@
-import { Component, OnInit } from '@angular/core';
-import { AuthService } from '../auth.service';
-import { SpotifyService } from '../spotify/spotify.service';
-import { AngularFireAuth } from '@angular/fire/auth';
-import { MatIconRegistry } from '@angular/material';
-import { DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { Component, OnInit } from "@angular/core";
+import { AuthService } from "../auth.service";
+import { SpotifyService } from "../spotify/spotify.service";
+import { AngularFireAuth } from "@angular/fire/auth";
+import { MatIconRegistry } from "@angular/material";
+import { DomSanitizer } from "@angular/platform-browser";
+import { Router } from "@angular/router";
 
 @Component({
-  selector: 'app-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  selector: "app-header",
+  templateUrl: "./header.component.html",
+  styleUrls: ["./header.component.scss"]
 })
 export class HeaderComponent implements OnInit {
-
   public tokens!: number;
 
   constructor(
@@ -30,15 +29,14 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fire.authState.subscribe((user: any) => {
-      this.spot.getMyTokens().subscribe((tokens: any) => {
-        this.tokens = tokens;
-      });
-    })
-
-    this.spot.userTokenSubject.subscribe(tokens => {
-      this.tokens = tokens;
-    })
+    // this.fire.authState.subscribe((user: any) => {
+    //   this.spot.getMyTokens().subscribe((tokens: any) => {
+    //     this.tokens = tokens;
+    //   });
+    // })
+    // this.spot.userTokenSubject.subscribe(tokens => {
+    //   this.tokens = tokens;
+    // })
   }
 
   get isLoggedIn() {
@@ -56,7 +54,6 @@ export class HeaderComponent implements OnInit {
   }
 
   goToAccount() {
-    this.router.navigate(['account']);
+    this.router.navigate(["account"]);
   }
-
 }

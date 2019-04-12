@@ -1,6 +1,7 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { SpotifyService } from "../spotify/spotify.service";
-import { ITrack } from '../spotify';
+import { ITrack } from "../spotify";
+import { TracksService } from "../spotify/tracks.service";
+import { QueueService } from "../spotify/queue.service";
 
 @Component({
   selector: "app-queue",
@@ -10,32 +11,27 @@ import { ITrack } from '../spotify';
 export class QueueComponent implements OnInit {
   @Input() host!: string;
 
-  public tracks!: any[];
+  public tracks: ITrack[] = [];
 
   public isHost!: boolean;
 
-  constructor(private spot: SpotifyService) {}
+  constructor(
+    private trackService: TracksService,
+    private queueService: QueueService
+  ) {}
 
   ngOnInit(): void {
-    this.spot.$tracks.subscribe(tracks => {
-      this.formatTracks(tracks);
+    this.trackService.$tracks.subscribe(tracks => {
+      this.queueService.getLikes().subscribe(likes => {
+        for (const track of tracks) {
+          if (likes.has(track._id)) {
+            track.isLiked = true;
+          }
+        }
+        this.tracks = tracks;
+      });
     });
 
     this.isHost = this.host === "true";
-  }
-
-  formatTracks(tracks: ITrack[]) {
-    this.spot.getMyLikes().subscribe((likeData: any) => {
-      const trackIds = new Set();
-      for (const like of likeData.payload) {
-        trackIds.add(like.trackId);
-      }
-      for (const track of tracks) {
-        if (trackIds.has(track._id)) {
-          track.isLiked = true;
-        }
-      }
-      this.tracks = tracks;
-    })
   }
 }

@@ -1,12 +1,12 @@
 import { Component, OnInit } from "@angular/core";
 import { SpotifyService } from "../spotify/spotify.service";
-import { PlayerService } from './player.service';
-import { interval, from } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { MatSliderChange } from '@angular/material';
-import { Router } from '@angular/router';
-import { AuthService } from '../auth.service';
-
+import { interval, from } from "rxjs";
+import { switchMap } from "rxjs/operators";
+import { MatSliderChange } from "@angular/material";
+import { Router } from "@angular/router";
+import { AuthService } from "../auth.service";
+import { QueueService } from "../spotify/queue.service";
+import "../models/spotify";
 
 @Component({
   selector: "app-player",
@@ -15,10 +15,10 @@ import { AuthService } from '../auth.service';
 })
 export class PlayerComponent implements OnInit {
   constructor(
-    private api: PlayerService,
     private spot: SpotifyService,
     private router: Router,
     private auth: AuthService,
+    private queueService: QueueService
   ) {}
 
   static player: Spotify.SpotifyPlayer;
@@ -34,7 +34,7 @@ export class PlayerComponent implements OnInit {
   public progress = 0;
 
   ngOnInit() {
-    window.onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
+    (<any>window).onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
     if (PlayerComponent.player) {
       this.setUpStart();
     }
@@ -77,7 +77,7 @@ export class PlayerComponent implements OnInit {
 
     // Playback status updates
     player.addListener("player_state_changed", state => {
-      this.api.sendPlayerState(state).subscribe(() => {});
+      this.queueService.sendPlayerState(state).subscribe(() => {});
       this.processState(state);
     });
 
@@ -103,7 +103,7 @@ export class PlayerComponent implements OnInit {
       return;
     }
 
-    this.spot.startQueue(this.deviceId).subscribe(() => {
+    this.queueService.startQueue(this.deviceId).subscribe(() => {
       this.setUpStart();
     });
   }
@@ -112,18 +112,20 @@ export class PlayerComponent implements OnInit {
     console.log("Queue Started");
     this.isStarted = true;
     this.isPlaying = true;
-      // start timer
-      interval(300).pipe(
-        switchMap(() => from(PlayerComponent.player.getCurrentState()))
-      ).subscribe(state => {
-        this.processState(state)
-      })
+    // start timer
+    interval(300)
+      .pipe(switchMap(() => from(PlayerComponent.player.getCurrentState())))
+      .subscribe(state => {
+        this.processState(state);
+      });
   }
 
   public processState(state: Spotify.PlaybackState) {
-    if (!state) return;
+    if (!state) {
+      return;
+    }
     this.playerState = state;
-    const { position , duration } = state;
+    const { position, duration } = state;
     this.progress = (position / duration) * 100;
 
     if (duration - position < 1100) {
@@ -137,10 +139,10 @@ export class PlayerComponent implements OnInit {
       return;
     }
     this.gettingNextSong = true;
-    this.api.nextTrack().subscribe(() => {
+    this.queueService.nextTrack().subscribe(() => {
       this.gettingNextSong = false;
       console.log("Next Song");
-    })
+    });
   }
 
   public play() {
@@ -160,13 +162,13 @@ export class PlayerComponent implements OnInit {
 
   public addTrack() {
     if (this.auth.isLoggedIn()) {
-      this.router.navigate(['search']);
+      this.router.navigate(["search"]);
     } else {
       alert("Please Login to add songs");
     }
   }
 
   public openVibe() {
-    this.router.navigate(['vibe']);
+    this.router.navigate(["vibe"]);
   }
 }

@@ -1,12 +1,13 @@
-import { Injectable } from '@angular/core';
-import { auth } from 'firebase/app';
+import { Injectable } from "@angular/core";
+import { auth } from "firebase/app";
 import { AngularFireAuth } from "@angular/fire/auth";
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../environments/environment';
-import { tap, switchMap, filter } from 'rxjs/operators';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { environment } from "../environments/environment";
+import { tap, switchMap, filter } from "rxjs/operators";
+import { Observable, of } from "rxjs";
 
 export interface IUser {
+  _id: string;
   name: string;
   uid: string;
   spotifyId?: string;
@@ -15,7 +16,7 @@ export interface IUser {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class AuthService {
   private baseUrl: string;
@@ -23,22 +24,20 @@ export class AuthService {
 
   public $user!: Observable<IUser>;
 
-  constructor(
-    private http: HttpClient,
-    private fire: AngularFireAuth,
-  ) {
+  constructor(private http: HttpClient, private fire: AngularFireAuth) {
     this.baseUrl = environment.apiUrl;
 
     this.$user = this.fire.authState.pipe(
       filter(user => Boolean(user)),
-      switchMap(({ uid }) => this.http.get<IUser>(`${this.baseUrl}/user/${uid}`))
-    )
+      switchMap(({ uid }) =>
+        this.http.get<IUser>(`${this.baseUrl}/user/${uid}`)
+      )
+    );
 
     this.$user.subscribe(user => {
       console.log(user);
       this.user = user;
     });
-
   }
 
   public getUser() {
@@ -49,28 +48,26 @@ export class AuthService {
     }
   }
 
-  
-
   public GoogleAuth() {
-    return this.AuthLogin(new auth.GoogleAuthProvider())
+    return this.AuthLogin(new auth.GoogleAuthProvider());
   }
 
   public async AuthLogin(provider) {
     try {
       const result = this.fire.auth.signInWithPopup(provider);
       return result;
-    } catch(err) {
+    } catch (err) {
       console.log(err);
     }
   }
 
   public createUser(uid: string, name: string) {
-    return this.http.post<IUser>(`${this.baseUrl}/user`, {
-      uid,
-      name,
-    }).pipe(
-      tap(user => this.user = user)
-    )
+    return this.http
+      .post<IUser>(`${this.baseUrl}/user`, {
+        uid,
+        name
+      })
+      .pipe(tap(user => (this.user = user)));
   }
 
   public logout() {
@@ -84,17 +81,21 @@ export class AuthService {
   }
 
   public get uid() {
-    if (!this.user) return null;
+    if (!this.user) {
+      return null;
+    }
     return this.user.uid;
   }
 
   public addSpotData(code: string) {
     return this.getUser().pipe(
-      switchMap(({ uid }) => this.http.post<IUser>(`${this.baseUrl}/user/spotify`, {
-        code,
-        uid,
-      })),
-      tap(user => this.user = user),
-    )
+      switchMap(({ uid }) =>
+        this.http.post<IUser>(`${this.baseUrl}/user/spotify`, {
+          code,
+          uid
+        })
+      ),
+      tap(user => (this.user = user))
+    );
   }
 }
