@@ -65,7 +65,7 @@ export class SearchComponent implements AfterViewInit {
   }
 
   addTrack() {
-    this.spot.addTrack(this.previewTrack.id).subscribe(data => {
+    this.queueService.addTrack(this.previewTrack.id).subscribe(data => {
       console.log(data);
     });
     this.location.back();

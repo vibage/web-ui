@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { AuthService } from "../auth.service";
+import { AuthService } from "../spotify/auth.service";
 import { SpotifyService } from "../spotify/spotify.service";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { MatIconRegistry } from "@angular/material";

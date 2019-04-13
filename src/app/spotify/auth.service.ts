@@ -2,18 +2,10 @@ import { Injectable } from "@angular/core";
 import { auth } from "firebase/app";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { HttpClient } from "@angular/common/http";
-import { environment } from "../environments/environment";
+import { environment } from "../../environments/environment";
 import { tap, switchMap, filter } from "rxjs/operators";
 import { Observable, of } from "rxjs";
-
-export interface IUser {
-  _id: string;
-  name: string;
-  uid: string;
-  spotifyId?: string;
-  accessToken?: string;
-  tokens: number;
-}
+import { IUser } from ".";
 
 @Injectable({
   providedIn: "root"

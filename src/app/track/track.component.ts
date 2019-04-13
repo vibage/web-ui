@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { MatIconRegistry } from "@angular/material";
 import { ITrack } from "../spotify";
-import { AuthService } from "../auth.service";
+import { AuthService } from "../spotify/auth.service";
 import { QueueService } from "../spotify/queue.service";
 
 @Component({

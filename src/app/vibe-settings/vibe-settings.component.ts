@@ -1,32 +1,33 @@
-import { Component, OnInit } from '@angular/core';
-import { SpotifyService } from '../spotify/spotify.service';
-import { IVibe } from '../spotify';
-import { MatCheckboxChange } from '@angular/material';
+import { Component, OnInit } from "@angular/core";
+import { IVibe } from "../spotify";
+import { VibeService } from "../spotify/vibe.service";
 
 @Component({
-  selector: 'app-vibe-settings',
-  templateUrl: './vibe-settings.component.html',
-  styleUrls: ['./vibe-settings.component.scss']
+  selector: "app-vibe-settings",
+  templateUrl: "./vibe-settings.component.html",
+  styleUrls: ["./vibe-settings.component.scss"]
 })
 export class VibeSettingsComponent implements OnInit {
+  public currentVibe!: IVibe;
 
-  public vibe: IVibe;
+  public allVibes!: IVibe[];
 
-  constructor(
-    private spot: SpotifyService,
-  ) { }
+  constructor(private vibeService: VibeService) {}
 
   ngOnInit() {
-    this.spot.getHostVibe().subscribe((data: IVibe) => {
-      console.log(data);
-      this.vibe = data;
+    this.vibeService.getVibe().subscribe(currentVibe => {
+      this.currentVibe = currentVibe;
+    });
+
+    this.vibeService.getAllVibes().subscribe(vibes => {
+      this.allVibes = vibes;
     });
   }
 
-  updateExp(data: MatCheckboxChange) {
-    this.spot.setHostExplicit(this.vibe._id, data.checked).subscribe((data) => {
+  selectVibe(vibe: IVibe) {
+    this.currentVibe = vibe;
+    this.vibeService.setVibe(vibe._id).subscribe(data => {
       console.log(data);
-    })
+    });
   }
-
 }

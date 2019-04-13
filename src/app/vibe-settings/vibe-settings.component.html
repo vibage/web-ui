@@ -1,6 +1,22 @@
-<mat-card *ngIf="vibe">
-  <mat-checkbox [(ngModel)]="vibe.explicit" (change)="updateExp($event)"> Explicit </mat-checkbox>
+<mat-card *ngIf="allVibes && currentVibe">
+  <a onclick="window.history.back()" class="back"> &larr; back </a>
+  <div>
+    <h3> Selected Vibe: </h3>
+
+    <div class="vibe">
+      <p><b> {{ currentVibe.name }} </b></p>
+      <p *ngIf="currentVibe.explicit"> Explicit </p>
+    </div>
+  </div>
+  <hr>
+  <div *ngFor="let vibe of allVibes" class="vibe">
+    <div *ngIf="currentVibe._id != vibe._id" class="vibe">
+      <p *ngIf="vibe.explicit"> Explicit </p>
+      <p> {{ vibe.name }} </p>
+      <button mat-raised-button (click)="selectVibe(vibe)"> Select </button>
+    </div>
+  </div>
 </mat-card>
-<div *ngIf="!vibe">
+<div *ngIf="!allVibes">
   <p> Loading </p>
 </div>

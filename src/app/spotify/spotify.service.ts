@@ -4,8 +4,8 @@ import { Observable, of, BehaviorSubject, merge } from "rxjs";
 import { tap, map, switchMap } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
-import { ITrack, ILike } from ".";
-import { AuthService, IUser } from "../auth.service";
+import { ITrack, ILike, IUser } from ".";
+import { AuthService } from "./auth.service";
 
 @Injectable({
   providedIn: "root"
@@ -22,7 +22,6 @@ export class SpotifyService {
   public isPlaying = false;
 
   private player!: Spotify.PlaybackState;
-  private user!: IUser;
 
   private playerSocket!: Observable<Spotify.PlaybackState>;
 
@@ -65,14 +64,6 @@ export class SpotifyService {
       .pipe(tap((tokens: number) => this.userTokenSubject.next(tokens)));
   }
 
-  public get $player() {
-    if (this.player) {
-      return merge(of(this.player), this.playerSocket);
-    } else {
-      return this.playerSocket;
-    }
-  }
-
   public getAccessToken(): Observable<string> {
     // just always refresh token to begin with?
     // there has to be a better way of doing this
@@ -104,15 +95,5 @@ export class SpotifyService {
     return this.http.post(`${this.baseUrl}/vibe/${vibeId}/setExplicit`, {
       explicit
     });
-  }
-
-  public addTrack(trackId: string) {
-    const queuerId = this.auth.uid;
-
-    return this.http.put(`${this.baseUrl}/queue/${this.hostId}/track`, {
-      trackId,
-      queuerId
-    });
-    // .pipe(tap(() => this.getMyTokens().subscribe()));
   }
 }

@@ -2,6 +2,16 @@ export interface IArtist {
   name: string;
 }
 
+export interface IUser {
+  _id: string;
+  name: string;
+  uid: string;
+  spotifyId?: string;
+  accessToken?: string;
+  tokens: number;
+  currentVibe: string;
+}
+
 export interface ITrack {
   name: string;
   artist?: string;
@@ -31,6 +41,7 @@ export interface IHost {
 export interface IVibe {
   explicit: boolean;
   name: string;
+  genres: string[];
   _id: string;
 }
 

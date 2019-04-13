@@ -4,7 +4,7 @@ import { interval, from } from "rxjs";
 import { switchMap } from "rxjs/operators";
 import { MatSliderChange } from "@angular/material";
 import { Router } from "@angular/router";
-import { AuthService } from "../auth.service";
+import { AuthService } from "../spotify/auth.service";
 import { QueueService } from "../spotify/queue.service";
 import "../models/spotify";
 
