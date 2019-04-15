@@ -16,10 +16,13 @@ export class AuthService {
 
   public $user!: Observable<IUser>;
 
+  public _isLoggedIn!: boolean;
+
   constructor(private http: HttpClient, private fire: AngularFireAuth) {
     this.baseUrl = environment.apiUrl;
 
     this.$user = this.fire.authState.pipe(
+      tap(user => (this._isLoggedIn = Boolean(user))),
       filter(user => Boolean(user)),
       switchMap(({ uid }) =>
         this.http.get<IUser>(`${this.baseUrl}/user/${uid}`)

@@ -12,10 +12,12 @@ import { AppComponent } from "./app.component";
 import { CurrentTrackComponent } from "./current-track/current-track.component";
 import { ListenComponent } from "./listen/listen.component";
 import { SearchComponent } from "./search/search.component";
-import { TrackComponent } from "./track/track.component";
 import { PlayerComponent } from "./player/player.component";
 import { QueueComponent } from "./queue/queue.component";
 import { HostRegisterComponent } from "./signin/host-register/host-register.component";
+
+// Shared
+import { TrackComponent } from "./shared/track/track.component";
 
 // Material
 import { MatCardModule } from "@angular/material/card";
@@ -38,8 +40,7 @@ import { HostFindComponent } from "./host-find/host-find.component";
 import { HeaderComponent } from "./header/header.component";
 import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";
 import { AccountComponent } from "./account/account.component";
-import { HomeComponent } from './pages/home/home.component';
-import { HomePageComponent } from './pages/home-page/home-page.component';
+import { HomePageComponent } from "./pages/home-page/home-page.component";
 
 const config: SocketIoConfig = {
   url: environment.apiUrl
@@ -60,7 +61,6 @@ const config: SocketIoConfig = {
     VibeSettingsComponent,
     HostRegisterComponent,
     AccountComponent,
-    HomeComponent,
     HomePageComponent
   ],
   imports: [
