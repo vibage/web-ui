@@ -1,6 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { SpotifyService } from "../spotify/spotify.service";
-import { QueueService } from "../spotify/queue.service";
+import { QueueService } from "../../spotify/queue.service";
 
 @Component({
   selector: "app-current-track",
@@ -8,10 +7,7 @@ import { QueueService } from "../spotify/queue.service";
   styleUrls: ["./current-track.component.scss"]
 })
 export class CurrentTrackComponent implements OnInit {
-  constructor(
-    private spot: SpotifyService,
-    private queueService: QueueService
-  ) {}
+  constructor(private queueService: QueueService) {}
 
   public progress!: number;
   public title!: string;

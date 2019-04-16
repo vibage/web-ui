@@ -9,7 +9,7 @@ import { environment } from "../environments/environment";
 
 // Components
 import { AppComponent } from "./app.component";
-import { CurrentTrackComponent } from "./current-track/current-track.component";
+import { CurrentTrackComponent } from "./listen/current-track/current-track.component";
 import { ListenComponent } from "./listen/listen.component";
 import { SearchComponent } from "./listen/search/search.component";
 import { PlayerComponent } from "./player/player.component";

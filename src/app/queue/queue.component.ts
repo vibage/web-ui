@@ -22,7 +22,9 @@ export class QueueComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.route.params.subscribe(params => {
-      this.queueService.setQueueId(params.id);
+      if (params.id) {
+        this.queueService.setQueueId(params.id);
+      }
     });
   }
 

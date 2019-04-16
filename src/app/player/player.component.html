@@ -1,3 +1,5 @@
+<app-search></app-search>
+
 <mat-card>
   <mat-card-content *ngIf="playerState">
     <img [src]="playerState.track_window.current_track.album.images[0].url" />
@@ -19,6 +21,4 @@
   </mat-card-actions>
 </mat-card>
 
-<button mat-fab id="addTrackButton" (click)="addTrack()">+</button>
-
-<app-queue host="true"></app-queue>
+<app-queue host="true" *ngIf="idLoaded"></app-queue>

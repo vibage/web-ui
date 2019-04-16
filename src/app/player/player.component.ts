@@ -14,14 +14,10 @@ import "../models/spotify";
   styleUrls: ["./player.component.scss"]
 })
 export class PlayerComponent implements OnInit {
-  constructor(
-    private spot: SpotifyService,
-    private router: Router,
-    private auth: AuthService,
-    private queueService: QueueService
-  ) {}
-
   static player: Spotify.SpotifyPlayer;
+
+  public idLoaded = false;
+
   private deviceId!: string;
 
   public playerState!: Spotify.PlaybackState;
@@ -33,11 +29,23 @@ export class PlayerComponent implements OnInit {
 
   public progress = 0;
 
+  constructor(
+    private spot: SpotifyService,
+    private router: Router,
+    private auth: AuthService,
+    private queueService: QueueService
+  ) {
+    this.auth.getUser().subscribe(user => {
+      this.queueService.setQueueId(user._id);
+      this.idLoaded = true;
+    });
+  }
+
   ngOnInit() {
-    (<any>window).onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
     if (PlayerComponent.player) {
       this.setUpStart();
     }
+    (<any>window).onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
   }
 
   public makePlayer() {
