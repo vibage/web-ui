@@ -1,5 +1,4 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
-import { SpotifyService } from "../spotify/spotify.service";
 import {
   switchMap,
   filter,
@@ -9,10 +8,11 @@ import {
   tap
 } from "rxjs/operators";
 import { fromEvent } from "rxjs";
-import { MatIconRegistry } from '@angular/material';
-import { DomSanitizer } from '@angular/platform-browser';
-import { ITrack } from '../spotify';
-import {Location} from '@angular/common';
+import { MatIconRegistry } from "@angular/material";
+import { DomSanitizer } from "@angular/platform-browser";
+import { ITrack } from "../../spotify";
+import { QueueService } from "../../spotify/queue.service";
+import { AuthService } from "src/app/spotify/auth.service";
 
 @Component({
   selector: "app-search",
@@ -23,15 +23,15 @@ export class SearchComponent implements AfterViewInit {
   @ViewChild("searchInput") input: ElementRef;
 
   public tracks!: ITrack;
-  public query: string = "";
+  public query = "";
 
   public previewTrack!: ITrack;
 
   constructor(
-    private spot: SpotifyService,
-    private location: Location,
+    private queueService: QueueService,
+    private auth: AuthService,
     iconRegistry: MatIconRegistry,
-    sanitizer: DomSanitizer,
+    sanitizer: DomSanitizer
   ) {
     iconRegistry.addSvgIcon(
       "search",
@@ -43,11 +43,11 @@ export class SearchComponent implements AfterViewInit {
     fromEvent(this.input.nativeElement, "input")
       .pipe(
         map((e: KeyboardEvent) => (e.target as HTMLInputElement).value),
-        tap(q => this.query = q),
+        tap(q => (this.query = q)),
         filter(q => q.length > 0),
         debounceTime(300),
         distinctUntilChanged(),
-        switchMap(q => this.spot.omnisearch(q)),
+        switchMap(q => this.queueService.omnisearch(q)),
         tap(x => console.log(x)),
         map((data: any) => data.tracks.items)
       )
@@ -55,6 +55,12 @@ export class SearchComponent implements AfterViewInit {
         console.log(x);
         this.tracks = x;
       });
+    fromEvent(this.input.nativeElement, "focus").subscribe(() => {
+      if (!this.auth.isLoggedIn()) {
+        alert("Please Login to add songs");
+        this.input.nativeElement.blur();
+      }
+    });
   }
 
   selectTrack(track: ITrack) {
@@ -62,10 +68,12 @@ export class SearchComponent implements AfterViewInit {
   }
 
   addTrack() {
-    this.spot.addTrack(this.previewTrack.id).subscribe(data => {
+    this.queueService.addTrack(this.previewTrack.id).subscribe(data => {
       console.log(data);
     });
-    this.location.back()
+    this.previewTrack = null;
+    this.input.nativeElement.value = "";
+    this.query = "";
   }
 
   close() {

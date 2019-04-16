@@ -1,4 +1,5 @@
 import { Component } from "@angular/core";
+import "./models/spotify";
 
 @Component({
   selector: "app-root",

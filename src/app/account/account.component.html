@@ -1,0 +1,11 @@
+<mat-card *ngIf="user" class="main-card">
+  <h1> {{ user.name }} </h1>
+  <button (click)="getCode()" mat-raised-button color="primary" [disabled]="user.spotifyId">
+    Login to spotify
+  </button>
+  <p *ngIf="user.spotifyId"> Authorized! </p>
+
+  <button (click)="startQueue()" mat-raised-button color="primary" [disabled]="!user.spotifyId">
+    Start a Queue!
+  </button>
+</mat-card>
