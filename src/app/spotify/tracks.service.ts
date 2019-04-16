@@ -6,6 +6,7 @@ import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
 import { ITrack } from ".";
 import { SpotifyService } from "./spotify.service";
+import { QueueService } from "./queue.service";
 
 @Injectable({
   providedIn: "root"
@@ -19,7 +20,8 @@ export class TracksService {
   constructor(
     private http: HttpClient,
     private socket: Socket,
-    private spot: SpotifyService
+    private spot: SpotifyService,
+    private queueService: QueueService
   ) {
     this.baseUrl = environment.apiUrl;
 
@@ -39,7 +41,9 @@ export class TracksService {
 
   public getTracksHttp() {
     return this.http
-      .get<ITrack[]>(`${this.baseUrl}/queue/${this.spot.hostId}/tracks`)
+      .get<ITrack[]>(
+        `${this.baseUrl}/queue/${this.queueService.queueId}/tracks`
+      )
       .pipe(
         tap(tracks => console.log(tracks)),
         tap(tracks => (this.tracks = tracks))

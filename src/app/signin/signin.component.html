@@ -1,10 +1,13 @@
-<mat-card>
+<mat-card class="main-card">
+  <h1> Login / Register </h1>
   <button (click)="googleLogin()" [disabled]="uid && uid.length > 0" mat-raised-button color="primary">
     Log in with Google
   </button>
-  <input [(ngModel)]="name" />
+  <mat-form-field>
+    <input matInput [(ngModel)]="name" placeholder="Name" />
+  </mat-form-field>
 
-  <button (click)="register()">
+  <button mat-raised-button (click)="register()">
     Create Account
   </button>
 </mat-card>

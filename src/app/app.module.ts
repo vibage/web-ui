@@ -11,10 +11,9 @@ import { environment } from "../environments/environment";
 import { AppComponent } from "./app.component";
 import { CurrentTrackComponent } from "./current-track/current-track.component";
 import { ListenComponent } from "./listen/listen.component";
-import { SearchComponent } from "./search/search.component";
+import { SearchComponent } from "./listen/search/search.component";
 import { PlayerComponent } from "./player/player.component";
 import { QueueComponent } from "./queue/queue.component";
-import { HostRegisterComponent } from "./signin/host-register/host-register.component";
 
 // Shared
 import { TrackComponent } from "./shared/track/track.component";
@@ -28,6 +27,8 @@ import { MatProgressBarModule } from "@angular/material/progress-bar";
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatListModule } from "@angular/material/list";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material";
 
 // Socket
 import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
@@ -59,7 +60,6 @@ const config: SocketIoConfig = {
     HostFindComponent,
     HeaderComponent,
     VibeSettingsComponent,
-    HostRegisterComponent,
     AccountComponent,
     HomePageComponent
   ],
@@ -77,6 +77,8 @@ const config: SocketIoConfig = {
     MatToolbarModule,
     MatCheckboxModule,
     MatListModule,
+    MatFormFieldModule,
+    MatInputModule,
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase, "fizzle"),
     AngularFireAuthModule

@@ -1,5 +1,4 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
-import { SpotifyService } from "../spotify/spotify.service";
 import {
   switchMap,
   filter,
@@ -11,9 +10,9 @@ import {
 import { fromEvent } from "rxjs";
 import { MatIconRegistry } from "@angular/material";
 import { DomSanitizer } from "@angular/platform-browser";
-import { ITrack } from "../spotify";
-import { Location } from "@angular/common";
-import { QueueService } from "../spotify/queue.service";
+import { ITrack } from "../../spotify";
+import { QueueService } from "../../spotify/queue.service";
+import { AuthService } from "src/app/spotify/auth.service";
 
 @Component({
   selector: "app-search",
@@ -29,15 +28,18 @@ export class SearchComponent implements AfterViewInit {
   public previewTrack!: ITrack;
 
   constructor(
-    private spot: SpotifyService,
     private queueService: QueueService,
-    private location: Location,
-    private iconRegistry: MatIconRegistry,
-    private sanitizer: DomSanitizer
-  ) {}
+    private auth: AuthService,
+    iconRegistry: MatIconRegistry,
+    sanitizer: DomSanitizer
+  ) {
+    iconRegistry.addSvgIcon(
+      "search",
+      sanitizer.bypassSecurityTrustResourceUrl("assets/icons/search.svg")
+    );
+  }
 
   ngAfterViewInit(): void {
-    this.input.nativeElement.focus();
     fromEvent(this.input.nativeElement, "input")
       .pipe(
         map((e: KeyboardEvent) => (e.target as HTMLInputElement).value),
@@ -53,11 +55,12 @@ export class SearchComponent implements AfterViewInit {
         console.log(x);
         this.tracks = x;
       });
-
-    this.iconRegistry.addSvgIcon(
-      "search",
-      this.sanitizer.bypassSecurityTrustResourceUrl("assets/icons/search.svg")
-    );
+    fromEvent(this.input.nativeElement, "focus").subscribe(() => {
+      if (!this.auth.isLoggedIn()) {
+        alert("Please Login to add songs");
+        this.input.nativeElement.blur();
+      }
+    });
   }
 
   selectTrack(track: ITrack) {
@@ -68,7 +71,9 @@ export class SearchComponent implements AfterViewInit {
     this.queueService.addTrack(this.previewTrack.id).subscribe(data => {
       console.log(data);
     });
-    this.location.back();
+    this.previewTrack = null;
+    this.input.nativeElement.value = "";
+    this.query = "";
   }
 
   close() {

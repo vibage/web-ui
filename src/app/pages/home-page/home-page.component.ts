@@ -19,7 +19,7 @@ export class HomePageComponent implements OnInit {
   hostRedirect() {
     const loggedIn = this.auth.isLoggedIn();
     if (loggedIn) {
-      this.router.navigate(["host"]);
+      this.router.navigate(["account"]);
     } else {
       this.router.navigate(["login"]);
     }

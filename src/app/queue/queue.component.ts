@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from "@angular/core";
 import { ITrack } from "../spotify";
 import { TracksService } from "../spotify/tracks.service";
 import { QueueService } from "../spotify/queue.service";
+import { ActivatedRoute } from "@angular/router";
 
 @Component({
   selector: "app-queue",
@@ -17,10 +18,16 @@ export class QueueComponent implements OnInit {
 
   constructor(
     private trackService: TracksService,
-    private queueService: QueueService
-  ) {}
+    private queueService: QueueService,
+    private route: ActivatedRoute
+  ) {
+    this.route.params.subscribe(params => {
+      this.queueService.setQueueId(params.id);
+    });
+  }
 
   ngOnInit(): void {
+    // listen for the tracks
     this.trackService.$tracks.subscribe(tracks => {
       this.queueService.getLikes().subscribe(likes => {
         for (const track of tracks) {

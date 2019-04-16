@@ -24,9 +24,7 @@ export class AuthService {
     this.$user = this.fire.authState.pipe(
       tap(user => (this._isLoggedIn = Boolean(user))),
       filter(user => Boolean(user)),
-      switchMap(({ uid }) =>
-        this.http.get<IUser>(`${this.baseUrl}/user/${uid}`)
-      )
+      switchMap(({ uid }) => this.getUserHttp(uid))
     );
 
     this.$user.subscribe(user => {
@@ -56,9 +54,13 @@ export class AuthService {
     }
   }
 
+  public getUserHttp(uid: string) {
+    return this.http.get<IUser>(`${this.baseUrl}/user/${uid}`);
+  }
+
   public createUser(uid: string, name: string) {
     return this.http
-      .post<IUser>(`${this.baseUrl}/user`, {
+      .put<IUser>(`${this.baseUrl}/user`, {
         uid,
         name
       })

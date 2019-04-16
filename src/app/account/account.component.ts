@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { AuthService } from "../spotify/auth.service";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { SpotifyService } from "../spotify/spotify.service";
 import { IUser } from "../spotify";
 
@@ -17,7 +17,8 @@ export class AccountComponent implements OnInit {
   constructor(
     private auth: AuthService,
     private spot: SpotifyService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -52,5 +53,9 @@ export class AccountComponent implements OnInit {
     }&response_type=code&redirect_uri=${redirect_url}&scope=${scope}&state=34fFT29kd09`;
     const formattedUrl = url;
     location.assign(formattedUrl);
+  }
+
+  public startQueue() {
+    this.router.navigate(["host"]);
   }
 }

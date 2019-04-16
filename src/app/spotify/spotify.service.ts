@@ -15,7 +15,7 @@ export class SpotifyService {
   private baseUrl!: string;
 
   public clientId = "a7e126eaee8b4c6f9e689a8b3b15efa5";
-  public hostId = "5c8ebbff82e57027dab01ef0";
+  public hostId!: string;
 
   public currentTrack!: ITrack;
   public isStarted = false;
@@ -34,10 +34,6 @@ export class SpotifyService {
   ) {
     this.baseUrl = environment.apiUrl;
     console.log("Base URL", this.baseUrl);
-
-    if (localStorage.getItem("hostId")) {
-      this.setHostId(localStorage.getItem("hostId"));
-    }
 
     this.playerSocket = this.socket
       .fromEvent<Spotify.PlaybackState>("player")
@@ -78,13 +74,6 @@ export class SpotifyService {
 
   public getHosts() {
     return this.http.get(`${this.baseUrl}/nearbyHost`);
-  }
-
-  public setHostId(hostId: string) {
-    console.log(`Setting Hosting Id: ${hostId}`);
-    this.hostId = hostId;
-    localStorage.setItem("hostId", hostId);
-    this.socket.emit("myId", this.hostId);
   }
 
   public getHostVibe() {

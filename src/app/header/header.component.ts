@@ -17,7 +17,6 @@ export class HeaderComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private spot: SpotifyService,
-    private fire: AngularFireAuth,
     private router: Router,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
@@ -44,13 +43,12 @@ export class HeaderComponent implements OnInit {
   }
 
   login() {
-    this.auth.GoogleAuth().then(() => {
-      alert("Authed");
-    });
+    this.router.navigate(["login"]);
   }
 
   logout() {
     this.auth.logout();
+    this.router.navigate([""]);
   }
 
   goToAccount() {

@@ -16,12 +16,12 @@ export class QueueService {
 
   public currentTrack!: ITrack;
 
-  private isStarted = false;
-
   private player!: Spotify.PlaybackState;
   private playerSocket!: Observable<Spotify.PlaybackState>;
 
   private likes!: Set<string>;
+
+  public queueId!: string;
 
   constructor(
     private http: HttpClient,
@@ -30,7 +30,6 @@ export class QueueService {
     private spot: SpotifyService
   ) {
     this.baseUrl = environment.apiUrl;
-    console.log("Base URL", this.baseUrl);
 
     this.playerSocket = this.socket
       .fromEvent<Spotify.PlaybackState>("player")
@@ -38,6 +37,12 @@ export class QueueService {
         tap(player => console.log(player)),
         tap(player => (this.player = player))
       );
+  }
+
+  public setQueueId(queueId: string) {
+    console.log(`Setting queue id: ${queueId}`);
+    this.socket.emit("myId", queueId);
+    this.queueId = queueId;
   }
 
   public get $player() {
@@ -49,7 +54,9 @@ export class QueueService {
   }
 
   public getPlayerHttp() {
-    const url = `${this.baseUrl}/queue/${this.spot.hostId}/player`;
+    console.log(this.queueId);
+
+    const url = `${this.baseUrl}/queue/${this.queueId}/player`;
     return this.http
       .get<Spotify.PlaybackState>(url)
       .pipe(tap(player => (this.player = player)));
@@ -74,19 +81,18 @@ export class QueueService {
   public addTrack(trackId: string) {
     const queuerId = this.auth.uid;
 
-    return this.http.put(`${this.baseUrl}/queue/${this.spot.hostId}/track`, {
+    return this.http.put(`${this.baseUrl}/queue/${this.queueId}/track`, {
       trackId,
       queuerId
     });
   }
 
   public omnisearch(query: string) {
-    const url = `${this.baseUrl}/queue/${this.spot.hostId}/search?q=${query}`;
+    const url = `${this.baseUrl}/queue/${this.queueId}/search?q=${query}`;
     return this.http.get<Spotify.Track[]>(url);
   }
 
   public startQueue(deviceId: string) {
-    this.isStarted = true;
     const url = `${this.baseUrl}/queue/start/`;
     return this.auth.getUser().pipe(
       switchMap(user =>
@@ -106,7 +112,7 @@ export class QueueService {
 
   public likeTrack(trackId: string) {
     this.likes.add(trackId);
-    const url = `${this.baseUrl}/queue/${this.spot.hostId}/like/${trackId}`;
+    const url = `${this.baseUrl}/queue/${this.queueId}/like/${trackId}`;
 
     return this.http.post(url, {
       uid: this.auth.uid
@@ -115,7 +121,7 @@ export class QueueService {
 
   public unlikeTrack(trackId: string) {
     this.likes.delete(trackId);
-    const url = `${this.baseUrl}/queue/${this.spot.hostId}/unlike/${trackId}`;
+    const url = `${this.baseUrl}/queue/${this.queueId}/unlike/${trackId}`;
 
     return this.http.post(url, {
       uid: this.auth.uid
