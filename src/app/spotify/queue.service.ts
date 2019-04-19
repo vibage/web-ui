@@ -100,7 +100,8 @@ export class QueueService {
           uid: user.uid,
           deviceId
         })
-      )
+      ),
+      tap(data => console.log(data))
     );
   }
 

@@ -126,6 +126,7 @@ declare namespace Spotify {
     is_playable: boolean;
     album: Album;
     artists: Artist[];
+    duration_ms: number;
   }
 
   interface WebPlaybackInstance {

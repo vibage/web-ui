@@ -1,24 +1,37 @@
 mat-card {
 
   mat-card-content {
-    display: flex;
-
-    img {
-      height: 100px;
-    }
-
-    div {
+    #top {
+      display: flex;
       width: 100%;
-      padding: 5px;
+
+      img {
+        height: 100px;
+        margin-right: 10px;
+      }
+
+      p {
+        margin: 0px;
+      }
 
       b {
         font-size: 1.8em;
       }
+    }
 
-      .progressBar {
-        margin: 10px 0px;
-        width: 100%;
-      }
+
+    mat-progress-bar,
+    mat-slider {
+      width: 100%;
+    }
+
+    mat-slider {
+      margin: 0px;
+      padding: 0px;
+    }
+
+    mat-progress-bar {
+      margin: 10px 0px;
     }
 
   }

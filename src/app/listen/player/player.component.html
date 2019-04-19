@@ -1,0 +1,6 @@
+<app-search></app-search>
+
+<app-current-track [elapse]="elapse" [playerState]="playerState" isHost="true" [hostActions]="hostActions">
+</app-current-track>
+
+<app-queue host="true" *ngIf="idLoaded"></app-queue>

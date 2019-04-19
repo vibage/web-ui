@@ -1,4 +1,5 @@
 import { Component, OnInit } from "@angular/core";
+import { QueueService } from "../spotify/queue.service";
 
 @Component({
   selector: "app-listen",
@@ -6,7 +7,33 @@ import { Component, OnInit } from "@angular/core";
   styleUrls: ["./listen.component.scss"]
 })
 export class ListenComponent implements OnInit {
-  constructor() {}
+  constructor(private queueService: QueueService) {}
 
-  ngOnInit() {}
+  public elapse!: number;
+  private timerInterval!: any;
+  public playerState!: Spotify.PlaybackState;
+
+  ngOnInit() {
+    this.queueService.$player.subscribe((player: Spotify.PlaybackState) => {
+      clearInterval(this.timerInterval);
+      this.playerState = player;
+      if (!player) {
+        return;
+      }
+
+      let { position } = player;
+
+      this.elapse = position;
+
+      console.log({ player });
+      if (!player.paused) {
+        console.log("Starting timer");
+        const intervalTime = 300;
+        this.timerInterval = setInterval(() => {
+          position += intervalTime;
+          this.elapse = position;
+        }, intervalTime);
+      }
+    });
+  }
 }

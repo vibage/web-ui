@@ -1,12 +1,11 @@
 import { Component, OnInit } from "@angular/core";
-import { SpotifyService } from "../spotify/spotify.service";
+import { SpotifyService } from "../../spotify/spotify.service";
 import { interval, from } from "rxjs";
 import { switchMap } from "rxjs/operators";
 import { MatSliderChange } from "@angular/material";
 import { Router } from "@angular/router";
-import { AuthService } from "../spotify/auth.service";
-import { QueueService } from "../spotify/queue.service";
-import "../models/spotify";
+import { AuthService } from "../../spotify/auth.service";
+import { QueueService } from "../../spotify/queue.service";
 
 @Component({
   selector: "app-player",
@@ -14,20 +13,15 @@ import "../models/spotify";
   styleUrls: ["./player.component.scss"]
 })
 export class PlayerComponent implements OnInit {
-  static player: Spotify.SpotifyPlayer;
+  private player: Spotify.SpotifyPlayer;
+  private deviceId!: string;
+  private shouldStart = false;
+  private gettingNextSong = false;
 
   public idLoaded = false;
-
-  private deviceId!: string;
-
   public playerState!: Spotify.PlaybackState;
-  public isPlaying = false;
-  public isStarted = false;
-  public shouldStart = false;
-
-  public gettingNextSong = false;
-
-  public progress = 0;
+  public elapse = 0;
+  public hostActions!: any;
 
   constructor(
     private spot: SpotifyService,
@@ -39,24 +33,33 @@ export class PlayerComponent implements OnInit {
       this.queueService.setQueueId(user._id);
       this.idLoaded = true;
     });
+    this.hostActions = {
+      start: this.start.bind(this),
+      next: this.nextTrack.bind(this),
+      play: this.play.bind(this),
+      pause: this.pause.bind(this),
+      seek: this.seek.bind(this),
+      vibe: this.openVibe.bind(this)
+    };
+
+    (<any>window).onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
   }
 
   ngOnInit() {
-    if (PlayerComponent.player) {
+    if (this.player) {
       this.setUpStart();
     }
-    (<any>window).onSpotifyWebPlaybackSDKReady = this.makePlayer.bind(this);
   }
 
   public makePlayer() {
     // if player has already been created
-    if (PlayerComponent.player) {
+    if (this.player) {
       return;
     }
 
     console.log("Creating Player");
 
-    PlayerComponent.player = new Spotify.Player({
+    this.player = new Spotify.Player({
       name: "Fizzle Player",
       getOAuthToken: cb => {
         this.spot.getAccessToken().subscribe(token => {
@@ -65,7 +68,7 @@ export class PlayerComponent implements OnInit {
       }
     });
 
-    const { player } = PlayerComponent;
+    const { player } = this;
 
     player.connect();
 
@@ -85,7 +88,7 @@ export class PlayerComponent implements OnInit {
 
     // Playback status updates
     player.addListener("player_state_changed", state => {
-      this.queueService.sendPlayerState(state).subscribe(() => {});
+      this.queueService.sendPlayerState(state).subscribe();
       this.processState(state);
     });
 
@@ -105,11 +108,13 @@ export class PlayerComponent implements OnInit {
   }
 
   public start() {
-    if (!PlayerComponent.player) {
+    if (!this.player) {
       this.makePlayer();
       this.shouldStart = true;
       return;
     }
+
+    console.log("Starting Queue");
 
     this.queueService.startQueue(this.deviceId).subscribe(() => {
       this.setUpStart();
@@ -117,25 +122,21 @@ export class PlayerComponent implements OnInit {
   }
 
   public setUpStart() {
-    console.log("Queue Started");
-    this.isStarted = true;
-    this.isPlaying = true;
     // start timer
     interval(300)
-      .pipe(switchMap(() => from(PlayerComponent.player.getCurrentState())))
+      .pipe(switchMap(() => from(this.player.getCurrentState())))
       .subscribe(state => {
         this.processState(state);
       });
   }
 
   public processState(state: Spotify.PlaybackState) {
+    this.playerState = state;
     if (!state) {
       return;
     }
-    this.playerState = state;
     const { position, duration } = state;
-    this.progress = (position / duration) * 100;
-
+    this.elapse = position;
     if (duration - position < 1100) {
       this.nextTrack();
     }
@@ -153,26 +154,16 @@ export class PlayerComponent implements OnInit {
   }
 
   public play() {
-    this.isPlaying = true;
-    PlayerComponent.player.resume();
+    this.player.resume();
   }
 
   public pause() {
-    this.isPlaying = false;
-    PlayerComponent.player.pause();
+    this.player.pause();
   }
 
   public seek(event: MatSliderChange) {
     const seekTimeMs = (event.value / 100) * this.playerState.duration;
-    PlayerComponent.player.seek(seekTimeMs);
-  }
-
-  public addTrack() {
-    if (this.auth.isLoggedIn()) {
-      this.router.navigate(["search"]);
-    } else {
-      alert("Please Login to add songs");
-    }
+    this.player.seek(seekTimeMs);
   }
 
   public openVibe() {

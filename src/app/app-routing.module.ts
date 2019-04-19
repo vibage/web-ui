@@ -1,6 +1,6 @@
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
-import { PlayerComponent } from "./player/player.component";
+import { PlayerComponent } from "./listen/player/player.component";
 import { ListenComponent } from "./listen/listen.component";
 import { HostFindComponent } from "./host-find/host-find.component";
 import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";

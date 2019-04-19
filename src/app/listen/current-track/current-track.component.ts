@@ -1,53 +1,80 @@
-import { Component, OnInit } from "@angular/core";
-import { QueueService } from "../../spotify/queue.service";
+import { Component, Input } from "@angular/core";
 
 @Component({
   selector: "app-current-track",
   templateUrl: "./current-track.component.html",
   styleUrls: ["./current-track.component.scss"]
 })
-export class CurrentTrackComponent implements OnInit {
-  constructor(private queueService: QueueService) {}
+export class CurrentTrackComponent {
+  @Input() playerState: Spotify.PlaybackState;
+  @Input() isHost: boolean;
+  @Input() hostActions: any;
+  @Input() elapse: number;
 
-  public progress!: number;
-  public title!: string;
+  constructor() {}
 
-  public trackName: string;
-  public trackArtist: string;
-  public imgUrl: string;
+  private msToReadable(ms: number) {
+    const seconds = String(Math.floor(ms / 1000) % 60).padStart(2, "0");
+    const minute = String(Math.floor(ms / (60 * 1000))).padStart(2, "0");
+    return `${minute}:${seconds}`;
+  }
 
-  public isOn!: boolean;
+  get progress() {
+    const duration = this.playerState.track_window.current_track.duration_ms;
+    const progress = (this.elapse / duration) * 100;
+    if (!this.elapse || !progress) {
+      return 0;
+    }
+    return progress;
+  }
 
-  private timerInterval!: any;
+  get isStarted() {
+    return Boolean(this.playerState);
+  }
 
-  ngOnInit() {
-    this.queueService.$player.subscribe((player: Spotify.PlaybackState) => {
-      console.log(player);
-      clearInterval(this.timerInterval);
-      this.isOn = Boolean(player);
-      if (!player) {
-        return;
-      }
+  get isPlaying() {
+    if (this.isStarted) {
+      return Boolean(!this.playerState.paused);
+    } else {
+      return true;
+    }
+  }
 
-      let { position } = player;
-      const { track_window, duration, paused } = player;
-      const { name, artists, album } = track_window.current_track;
+  get trackName() {
+    if (this.isStarted) {
+      return this.playerState.track_window.current_track.name;
+    } else {
+      return null;
+    }
+  }
 
-      this.title = `${name} - ${artists[0].name}`;
+  get artist() {
+    if (this.isStarted) {
+      return this.playerState.track_window.current_track.artists[0].name;
+    } else {
+      return null;
+    }
+  }
 
-      this.trackName = name;
-      this.trackArtist = artists[0].name;
-      this.imgUrl = album.images[0].url;
+  get imgUrl() {
+    if (this.isStarted) {
+      return this.playerState.track_window.current_track.album.images[0].url;
+    } else {
+      return null;
+    }
+  }
 
-      this.progress = (position / duration) * 100;
+  get durationReadable() {
+    if (this.isStarted) {
+      return this.msToReadable(
+        this.playerState.track_window.current_track.duration_ms
+      );
+    } else {
+      return null;
+    }
+  }
 
-      if (!paused) {
-        const intervalTime = 300;
-        this.timerInterval = setInterval(() => {
-          position += intervalTime;
-          this.progress = (position / duration) * 100;
-        }, intervalTime);
-      }
-    });
+  get elapseReadable() {
+    return this.msToReadable(this.elapse);
   }
 }

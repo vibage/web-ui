@@ -13,7 +13,7 @@ import { QueueService } from "./queue.service";
 export class TracksService {
   private baseUrl!: string;
 
-  private tracks!: ITrack[];
+  private _tracks!: ITrack[];
   private tracksSocket!: Observable<ITrack[]>;
 
   constructor(
@@ -25,13 +25,17 @@ export class TracksService {
 
     this.tracksSocket = this.socket.fromEvent<ITrack[]>("tracks").pipe(
       tap(tracks => console.log(tracks)),
-      tap(tracks => (this.tracks = tracks))
+      tap(tracks => (this._tracks = tracks))
     );
   }
 
+  public get tracks() {
+    return this._tracks;
+  }
+
   public get $tracks() {
-    if (this.tracks) {
-      return merge(of(this.tracks), this.tracksSocket);
+    if (this._tracks) {
+      return merge(of(this._tracks), this.tracksSocket);
     } else {
       return merge(this.getTracksHttp(), this.tracksSocket);
     }
@@ -44,7 +48,7 @@ export class TracksService {
       )
       .pipe(
         tap(tracks => console.log({ tracks })),
-        tap(tracks => (this.tracks = tracks))
+        tap(tracks => (this._tracks = tracks))
       );
   }
 }

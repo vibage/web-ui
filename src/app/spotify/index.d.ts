@@ -14,14 +14,14 @@ export interface IUser {
 
 export interface ITrack {
   name: string;
-  artist?: string;
   artists: IArtist[];
+  album: any;
   uri: string;
-  id: string;
   duration_ms: number;
-  likes: number;
+  id?: string;
   _id: string;
-  isLiked: boolean;
+  isLiked?: boolean;
+  likes?: number;
 }
 
 export interface IPlayer {
