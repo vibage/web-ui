@@ -13,10 +13,10 @@ import { CurrentTrackComponent } from "./listen/current-track/current-track.comp
 import { ListenComponent } from "./listen/listen.component";
 import { SearchComponent } from "./listen/search/search.component";
 import { PlayerComponent } from "./player/player.component";
-import { QueueComponent } from "./queue/queue.component";
+import { QueueComponent } from "./listen/queue/queue.component";
 
 // Shared
-import { TrackComponent } from "./shared/track/track.component";
+import { TrackComponent } from "./listen/track/track.component";
 
 // Material
 import { MatCardModule } from "@angular/material/card";

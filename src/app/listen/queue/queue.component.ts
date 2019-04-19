@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { ITrack } from "../spotify";
-import { TracksService } from "../spotify/tracks.service";
-import { QueueService } from "../spotify/queue.service";
+import { ITrack } from "../../spotify";
+import { TracksService } from "../../spotify/tracks.service";
+import { QueueService } from "../../spotify/queue.service";
 import { ActivatedRoute } from "@angular/router";
 
 @Component({

@@ -1,11 +1,23 @@
 <mat-card *ngIf="user" class="main-card">
   <h1> {{ user.name }} </h1>
-  <button (click)="getCode()" mat-raised-button color="primary" [disabled]="user.spotifyId">
-    Login to spotify
-  </button>
-  <p *ngIf="user.spotifyId"> Authorized! </p>
+  <div id="authSpot">
+    <img src="assets/spotify.png" />
+    <button (click)="getCode()" mat-raised-button color="primary" [disabled]="hasSpotAuth">
+      Login to spotify
+    </button>
+    <p *ngIf="user.spotifyId"> Authorized! </p>
+  </div>
+  <mat-hint> Authorize spotify so we can play spotify through your speakers and so others can search your songs
+  </mat-hint>
+  <br>
+  <div id="actionButtons">
+    <button (click)="listen()" mat-raised-button color="primary">
+      Listen to a Queue
+    </button>
+    <button (click)="startQueue()" mat-raised-button color="primary" [disabled]="!hasSpotAuth">
+      Start a Queue
+    </button>
+  </div>
 
-  <button (click)="startQueue()" mat-raised-button color="primary" [disabled]="!user.spotifyId">
-    Start a Queue!
-  </button>
+
 </mat-card>

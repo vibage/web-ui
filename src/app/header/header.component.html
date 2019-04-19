@@ -1,5 +1,5 @@
 <mat-toolbar color="warm">
-  <img src="assets/logo.png" height="60" />
+  <img src="assets/logo.png" height="60" (click)="goHome()" />
 
   <span *ngIf="isLoggedIn" id="tokenDiv">
     <mat-icon svgIcon="token"></mat-icon>

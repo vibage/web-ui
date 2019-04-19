@@ -28,7 +28,7 @@ export class AuthService {
     );
 
     this.$user.subscribe(user => {
-      console.log(user);
+      console.log({ user });
       this.user = user;
     });
   }
@@ -55,7 +55,13 @@ export class AuthService {
   }
 
   public getUserHttp(uid: string) {
-    return this.http.get<IUser>(`${this.baseUrl}/user/${uid}`);
+    return this.http.get<IUser>(`${this.baseUrl}/user/${uid}`).pipe(
+      tap(user => {
+        if (user === null) {
+          this.user = null;
+        }
+      })
+    );
   }
 
   public createUser(uid: string, name: string) {
@@ -69,7 +75,6 @@ export class AuthService {
 
   public logout() {
     this.fire.auth.signOut();
-    localStorage.removeItem("user");
   }
 
   public isLoggedIn() {

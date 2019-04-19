@@ -14,7 +14,6 @@ export class SpotifyService {
   public token: string;
   private baseUrl!: string;
 
-  public clientId = "a7e126eaee8b4c6f9e689a8b3b15efa5";
   public hostId!: string;
 
   public currentTrack!: ITrack;

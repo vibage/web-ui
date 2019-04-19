@@ -1,7 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { AuthService } from "../spotify/auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { SpotifyService } from "../spotify/spotify.service";
 import { IUser } from "../spotify";
 
 @Component({
@@ -11,27 +10,33 @@ import { IUser } from "../spotify";
 })
 export class AccountComponent implements OnInit {
   public name!: string;
-
+  public clientId = "a7e126eaee8b4c6f9e689a8b3b15efa5";
   public user!: IUser;
+  public hasSpotAuth = false;
 
   constructor(
     private auth: AuthService,
-    private spot: SpotifyService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
 
   ngOnInit() {
     this.auth.getUser().subscribe(user => {
+      if (!user) {
+        this.router.navigate(["login"]);
+        return;
+      }
       this.user = user;
+      this.hasSpotAuth = Boolean(this.user.spotifyId);
     });
+
     const code = this.route.snapshot.queryParamMap.get("code");
-    console.log(code);
     if (code) {
       // authorize with spot
-      this.auth.addSpotData(code).subscribe(data => {
-        console.log(data);
+      this.auth.addSpotData(code).subscribe(() => {
+        // get rid of the code in the url
         location.assign(`${location.origin}/#/account`);
+        this.hasSpotAuth = true;
       });
     }
   }
@@ -49,13 +54,16 @@ export class AccountComponent implements OnInit {
     ];
     const scope = encodeURIComponent(permissions.join(" "));
     const url = `https://accounts.spotify.com/authorize?client_id=${
-      this.spot.clientId
+      this.clientId
     }&response_type=code&redirect_uri=${redirect_url}&scope=${scope}&state=34fFT29kd09`;
-    const formattedUrl = url;
-    location.assign(formattedUrl);
+    location.assign(url);
   }
 
   public startQueue() {
     this.router.navigate(["host"]);
+  }
+
+  public listen() {
+    this.router.navigate(["find"]);
   }
 }

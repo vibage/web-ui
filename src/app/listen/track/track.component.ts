@@ -15,6 +15,7 @@ export class TrackComponent implements OnInit {
   @Input() addable!: boolean;
   @Input() removable!: boolean;
   @Input() likeable!: boolean;
+  @Input() playable!: boolean;
   @Input() addFunc!: (track: ITrack) => void;
 
   public isLiked = false;
@@ -27,27 +28,33 @@ export class TrackComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.iconRegistry.addSvgIcon(
-      "delete",
-      this.sanitizer.bypassSecurityTrustResourceUrl("assets/icons/delete.svg")
-    );
-    this.iconRegistry.addSvgIcon(
-      "heart",
-      this.sanitizer.bypassSecurityTrustResourceUrl("assets/icons/heart.svg")
-    );
-    this.iconRegistry.addSvgIcon(
-      "heart_outline",
-      this.sanitizer.bypassSecurityTrustResourceUrl(
-        "assets/icons/heart_outline.svg"
-      )
-    );
+    this.registerIcon("delete");
+    this.registerIcon("heart");
+    this.registerIcon("heart_outline");
+    this.registerIcon("play");
+    this.registerIcon("add");
     if (this.track.isLiked) {
       this.isLiked = true;
     }
   }
 
+  registerIcon(iconName: string) {
+    this.iconRegistry.addSvgIcon(
+      iconName,
+      this.sanitizer.bypassSecurityTrustResourceUrl(
+        `assets/icons/${iconName}.svg`
+      )
+    );
+  }
+
   add() {
     this.addFunc(this.track);
+  }
+
+  play() {
+    this.queueService.playTrack(this.track._id).subscribe(() => {
+      console.log("Track Played");
+    });
   }
 
   toggleLike() {

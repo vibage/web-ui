@@ -139,7 +139,6 @@ export class PlayerComponent implements OnInit {
     if (duration - position < 1100) {
       this.nextTrack();
     }
-    localStorage.setItem("player", JSON.stringify(state));
   }
 
   public nextTrack() {
