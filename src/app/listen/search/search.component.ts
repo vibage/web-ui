@@ -10,9 +10,9 @@ import {
 import { fromEvent } from "rxjs";
 import { MatIconRegistry } from "@angular/material";
 import { DomSanitizer } from "@angular/platform-browser";
-import { ITrack } from "../../spotify";
-import { QueueService } from "../../spotify/queue.service";
-import { AuthService } from "src/app/spotify/auth.service";
+import { ITrack } from "../../services";
+import { QueueService } from "../../services/queue.service";
+import { AuthService } from "src/app/services/auth.service";
 
 @Component({
   selector: "app-search",

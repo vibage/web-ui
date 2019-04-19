@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { QueueService } from "../spotify/queue.service";
+import { QueueService } from "../services/queue.service";
 
 @Component({
   selector: "app-listen",

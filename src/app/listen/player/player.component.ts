@@ -1,11 +1,11 @@
 import { Component, OnInit } from "@angular/core";
-import { SpotifyService } from "../../spotify/spotify.service";
+import { SpotifyService } from "../../services/spotify.service";
 import { interval, from } from "rxjs";
 import { switchMap } from "rxjs/operators";
 import { MatSliderChange } from "@angular/material";
 import { Router } from "@angular/router";
-import { AuthService } from "../../spotify/auth.service";
-import { QueueService } from "../../spotify/queue.service";
+import { AuthService } from "../../services/auth.service";
+import { QueueService } from "../../services/queue.service";
 
 @Component({
   selector: "app-player",

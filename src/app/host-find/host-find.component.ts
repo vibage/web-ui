@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { SpotifyService } from "../spotify/spotify.service";
-import { IHost } from "../spotify";
+import { SpotifyService } from "../services/spotify.service";
+import { IHost } from "../services";
 import { Router } from "@angular/router";
 
 @Component({

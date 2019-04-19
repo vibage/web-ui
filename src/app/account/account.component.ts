@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { AuthService } from "../spotify/auth.service";
+import { AuthService } from "../services/auth.service";
 import { ActivatedRoute, Router } from "@angular/router";
-import { IUser } from "../spotify";
+import { IUser } from "../services";
 
 @Component({
   selector: "app-account",

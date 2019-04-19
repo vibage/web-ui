@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
-import { IVibe } from "../spotify";
-import { VibeService } from "../spotify/vibe.service";
+import { IVibe } from "../services";
+import { VibeService } from "../services/vibe.service";
 
 @Component({
   selector: "app-vibe-settings",
