@@ -5,7 +5,6 @@ import { tap } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
 import { ITrack } from ".";
-import { SpotifyService } from "./spotify.service";
 import { QueueService } from "./queue.service";
 
 @Injectable({
@@ -20,7 +19,6 @@ export class TracksService {
   constructor(
     private http: HttpClient,
     private socket: Socket,
-    private spot: SpotifyService,
     private queueService: QueueService
   ) {
     this.baseUrl = environment.apiUrl;
@@ -45,7 +43,7 @@ export class TracksService {
         `${this.baseUrl}/queue/${this.queueService.queueId}/tracks`
       )
       .pipe(
-        tap(tracks => console.log(tracks)),
+        tap(tracks => console.log({ tracks })),
         tap(tracks => (this.tracks = tracks))
       );
   }

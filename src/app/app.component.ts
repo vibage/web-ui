@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import "./models/spotify";
+import "hammerjs";
 
 @Component({
   selector: "app-root",
@@ -7,5 +8,9 @@ import "./models/spotify";
   styleUrls: ["./app.component.scss"]
 })
 export class AppComponent {
-  title = "front-end";
+  constructor() {
+    (window as any).onSpotifyWebPlaybackSDKReady = () => {
+      console.log("Spotify Loaded");
+    };
+  }
 }

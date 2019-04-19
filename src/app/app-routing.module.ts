@@ -3,7 +3,6 @@ import { Routes, RouterModule } from "@angular/router";
 import { PlayerComponent } from "./player/player.component";
 import { ListenComponent } from "./listen/listen.component";
 import { HostFindComponent } from "./host-find/host-find.component";
-import { SearchComponent } from "./listen/search/search.component";
 import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";
 import { SigninComponent } from "./signin/signin.component";
 import { AccountComponent } from "./account/account.component";

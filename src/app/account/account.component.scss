@@ -1,1 +1,23 @@
+h1 {
+  text-align: center;
+}
 
+mat-card {
+  #authSpot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    img {
+      width: 32px;
+      height: 32px;
+      margin-right: 10px;
+    }
+  }
+
+  #actionButtons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+  }
+}

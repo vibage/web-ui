@@ -110,6 +110,13 @@ export class QueueService {
     });
   }
 
+  public playTrack(trackId: string) {
+    return this.http.put(`${this.baseUrl}/queue/playTrack`, {
+      uid: this.auth.uid,
+      trackId
+    });
+  }
+
   public likeTrack(trackId: string) {
     this.likes.add(trackId);
     const url = `${this.baseUrl}/queue/${this.queueId}/like/${trackId}`;
