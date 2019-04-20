@@ -14,11 +14,10 @@ export interface IUser {
 
 export interface ITrack {
   name: string;
-  artists: IArtist[];
+  artist: string;
   album: any;
   uri: string;
   duration_ms: number;
-  id?: string;
   _id: string;
   isLiked?: boolean;
   likes?: number;
@@ -42,6 +41,7 @@ export interface IVibe {
   explicit: boolean;
   name: string;
   genres: string[];
+  canUserAddTrack: boolean;
   _id: string;
 }
 
@@ -50,8 +50,4 @@ export interface ILike {
   hostId: string;
   queuerId: string;
   trackId: string;
-}
-
-interface Window {
-  onSpotifyWebPlaybackSDKReady(): void;
 }

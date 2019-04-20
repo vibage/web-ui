@@ -36,7 +36,7 @@ import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
 // Firebase
 import { AngularFireModule } from "@angular/fire";
 import { AngularFireAuthModule } from "@angular/fire/auth";
-import { SigninComponent } from "./signin/signin.component";
+import { SigninComponent } from "./account/signin/signin.component";
 import { HostFindComponent } from "./host-find/host-find.component";
 import { HeaderComponent } from "./header/header.component";
 import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";

@@ -3,7 +3,8 @@ import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
 import { AuthService } from "./auth.service";
 import { IVibe } from ".";
-import { map, switchMap } from "rxjs/operators";
+import { map, switchMap, tap } from "rxjs/operators";
+import { of } from "rxjs";
 
 @Injectable({
   providedIn: "root"
@@ -17,15 +18,20 @@ export class VibeService {
   }
 
   public getVibe() {
-    return this.auth
-      .getUser()
-      .pipe(
-        switchMap(user =>
-          this.http.get<IVibe>(
-            `${this.baseUrl}/vibe/${this.auth.user.currentVibe}`
-          )
-        )
-      );
+    return this.auth.getUser().pipe(
+      switchMap(user =>
+        this.http.get<IVibe>(`${this.baseUrl}/vibe/${user.currentVibe}`)
+      ),
+      tap(vibe => (this.vibe = vibe))
+    );
+  }
+
+  get $vibe() {
+    if (this.vibe) {
+      return of(this.vibe);
+    } else {
+      return this.getVibe();
+    }
   }
 
   public getAllVibes() {

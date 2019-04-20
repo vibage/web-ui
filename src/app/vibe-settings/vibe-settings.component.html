@@ -1,4 +1,4 @@
-<mat-card *ngIf="allVibes && currentVibe">
+<mat-card *ngIf="allVibes && currentVibe" class="main-card">
   <a onclick="window.history.back()" class="back"> &larr; back </a>
   <div>
     <h3> Selected Vibe: </h3>
@@ -11,8 +11,8 @@
   <hr>
   <div *ngFor="let vibe of allVibes" class="vibe">
     <div *ngIf="currentVibe._id != vibe._id" class="vibe">
+      <p><b> {{ vibe.name }} </b></p>
       <p *ngIf="vibe.explicit"> Explicit </p>
-      <p> {{ vibe.name }} </p>
       <button mat-raised-button (click)="selectVibe(vibe)"> Select </button>
     </div>
   </div>

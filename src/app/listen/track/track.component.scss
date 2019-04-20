@@ -1,10 +1,9 @@
 .track {
   display: flex;
-  padding: 1px 10px;
   background-color: white;
   justify-content: space-between;
-  border-top: 1px solid black;
-  border-bottom: 1px solid black;
+  margin: 0px 0px 10px 0px;
+  padding: 0px;
 
   #trackName {
     font-size: 1.2em;
@@ -31,11 +30,11 @@
     align-self: center;
   }
 
+  .mat-icon-button {
+    width: 33px;
+  }
+
   #likeCount {
     font-size: 1.4em;
   }
-}
-
-.track:hover {
-  // background-color: lightgrey;
 }

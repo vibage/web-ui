@@ -1,16 +1,16 @@
 <div class="track">
   <div>
     <p id="trackName"> <b> {{ track.name }} </b> </p>
-    <p> {{ track.artists[0].name }} </p>
+    <p> {{ track.artist }} </p>
   </div>
   <div id="actions">
     <p *ngIf="!addable" id="likeCount"> {{ track.likes }} </p>
-    <button mat-icon-button *ngIf="playable" (click)="play()">
-      <mat-icon svgIcon="play"></mat-icon>
-    </button>
     <button mat-icon-button *ngIf="likeable" (click)="toggleLike()">
       <mat-icon svgIcon="heart" *ngIf="isLiked"></mat-icon>
       <mat-icon svgIcon="heart_outline" *ngIf="!isLiked"></mat-icon>
+    </button>
+    <button mat-icon-button *ngIf="playable" (click)="play()">
+      <mat-icon svgIcon="play"></mat-icon>
     </button>
     <button mat-icon-button *ngIf="removable" (click)="remove()">
       <mat-icon svgIcon="delete" id="deleteIcon"></mat-icon>

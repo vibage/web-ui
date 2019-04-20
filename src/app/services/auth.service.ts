@@ -3,9 +3,9 @@ import { auth } from "firebase/app";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
-import { tap, switchMap, filter } from "rxjs/operators";
-import { Observable, of } from "rxjs";
-import { IUser } from ".";
+import { tap, switchMap, filter, map } from "rxjs/operators";
+import { Observable, of, concat, BehaviorSubject } from "rxjs";
+import { IUser, ILike } from ".";
 
 @Injectable({
   providedIn: "root"
@@ -18,6 +18,8 @@ export class AuthService {
 
   public _isLoggedIn!: boolean;
 
+  public $tokens = new BehaviorSubject<number>(0);
+
   constructor(private http: HttpClient, private fire: AngularFireAuth) {
     this.baseUrl = environment.apiUrl;
 
@@ -29,16 +31,42 @@ export class AuthService {
 
     this.$user.subscribe(user => {
       console.log({ user });
+      this.$tokens.next(user.tokens);
       this.user = user;
     });
   }
 
   public getUser() {
     if (this.user) {
-      return of(this.user);
+      return concat(of(this.user), this.$user);
     } else {
       return this.$user;
     }
+  }
+
+  public getMyLikes() {
+    return this.getUser().pipe(
+      switchMap(user =>
+        this.http.get<ILike[]>(`${this.baseUrl}/user/${user._id}/likes`)
+      )
+    );
+  }
+
+  public decrementTokens(amount: number) {
+    this.user.tokens -= amount;
+    this.$tokens.next(this.user.tokens);
+  }
+
+  public getAccessToken(): Observable<string> {
+    // just always refresh token to begin with?
+    // there has to be a better way of doing this
+
+    return this.getUser().pipe(
+      switchMap(user =>
+        this.http.post<IUser>(`${this.baseUrl}/user/refresh`, { uid: user.uid })
+      ),
+      map(user => user.accessToken)
+    );
   }
 
   public GoogleAuth() {

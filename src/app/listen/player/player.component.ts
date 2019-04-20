@@ -1,5 +1,4 @@
 import { Component, OnInit } from "@angular/core";
-import { SpotifyService } from "../../services/spotify.service";
 import { interval, from } from "rxjs";
 import { switchMap } from "rxjs/operators";
 import { MatSliderChange } from "@angular/material";
@@ -24,7 +23,6 @@ export class PlayerComponent implements OnInit {
   public hostActions!: any;
 
   constructor(
-    private spot: SpotifyService,
     private router: Router,
     private auth: AuthService,
     private queueService: QueueService
@@ -62,7 +60,7 @@ export class PlayerComponent implements OnInit {
     this.player = new Spotify.Player({
       name: "Fizzle Player",
       getOAuthToken: cb => {
-        this.spot.getAccessToken().subscribe(token => {
+        this.auth.getAccessToken().subscribe(token => {
           cb(token);
         });
       }

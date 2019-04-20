@@ -132,4 +132,16 @@ declare namespace Spotify {
   interface WebPlaybackInstance {
     device_id: string;
   }
+
+  interface SearchResult {
+    tracks: {
+      href: string;
+      items: Track[];
+      limit: number;
+      next: string;
+      offset: number;
+      previous: string;
+      total: number;
+    };
+  }
 }

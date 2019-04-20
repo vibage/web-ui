@@ -1,5 +1,5 @@
-import { Component, OnInit } from "@angular/core";
-import { AuthService } from "../services/auth.service";
+import { Component, OnInit, EventEmitter, Output } from "@angular/core";
+import { AuthService } from "../../services/auth.service";
 import { Router } from "@angular/router";
 
 @Component({
@@ -11,9 +11,15 @@ export class SigninComponent implements OnInit {
   public uid: string;
   public name: string;
 
+  @Output() private close = new EventEmitter<void>();
+
   constructor(public auth: AuthService, private router: Router) {}
 
   ngOnInit() {}
+
+  closeModal() {
+    this.close.emit();
+  }
 
   googleLogin() {
     this.auth.GoogleAuth().then(({ user }) => {
@@ -24,25 +30,22 @@ export class SigninComponent implements OnInit {
       this.auth.getUserHttp(user.uid).subscribe(
         userRes => {
           if (userRes) {
+            this.close.emit();
             // this user already exist
             this.router.navigate(["account"]);
+          } else {
+            // we need to create the user
+            this.auth.createUser(this.uid, user.displayName).subscribe(data => {
+              console.log(data);
+              this.close.emit();
+              this.router.navigate(["account"]);
+            });
           }
         },
         error => {
           console.log(error);
         }
       );
-
-      if (!this.name) {
-        this.name = user.displayName;
-      }
-    });
-  }
-
-  register() {
-    this.auth.createUser(this.uid, this.name).subscribe(data => {
-      console.log(data);
-      this.router.navigate(["account"]);
     });
   }
 }

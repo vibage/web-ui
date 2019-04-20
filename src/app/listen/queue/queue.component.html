@@ -1,5 +1,4 @@
-<div>
-  <div *ngFor="let track of tracks">
-    <app-track [track]="track" [removable]="isHost" likeable="true" [playable]="isHost"></app-track>
-  </div>
-</div>
+<mat-card class="main-card">
+  <app-track *ngFor="let track of tracks" [track]="track" [removable]="isHost" likeable="true" [playable]="isHost">
+  </app-track>
+</mat-card>

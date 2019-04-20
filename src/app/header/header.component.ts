@@ -12,6 +12,8 @@ import { Router } from "@angular/router";
 export class HeaderComponent implements OnInit {
   public tokens!: number;
 
+  public openLogin = false;
+
   constructor(
     public auth: AuthService,
     private router: Router,
@@ -24,7 +26,11 @@ export class HeaderComponent implements OnInit {
     );
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.auth.$tokens.subscribe(tokens => {
+      this.tokens = tokens;
+    });
+  }
 
   get isLoggedIn() {
     return this.auth.isLoggedIn();
@@ -35,7 +41,8 @@ export class HeaderComponent implements OnInit {
   }
 
   login() {
-    this.router.navigate(["login"]);
+    // this.router.navigate(["login"]);
+    this.openLogin = true;
   }
 
   logout() {

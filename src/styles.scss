@@ -30,3 +30,17 @@ span {
 .main-card {
   margin: 10px;
 }
+
+.pop-card {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  border: 2px solid black;
+  border-radius: 20px;
+  background-color: white;
+  z-index: 10;
+  padding: 20px;
+  box-sizing: border-box;
+}

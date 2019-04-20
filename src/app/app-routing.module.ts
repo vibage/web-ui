@@ -4,7 +4,7 @@ import { PlayerComponent } from "./listen/player/player.component";
 import { ListenComponent } from "./listen/listen.component";
 import { HostFindComponent } from "./host-find/host-find.component";
 import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";
-import { SigninComponent } from "./signin/signin.component";
+import { SigninComponent } from "./account/signin/signin.component";
 import { AccountComponent } from "./account/account.component";
 import { HomePageComponent } from "./pages/home-page/home-page.component";
 

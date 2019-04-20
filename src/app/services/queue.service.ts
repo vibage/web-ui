@@ -6,7 +6,6 @@ import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
 import { ITrack } from ".";
 import { AuthService } from "./auth.service";
-import { SpotifyService } from "./spotify.service";
 
 @Injectable({
   providedIn: "root"
@@ -26,8 +25,7 @@ export class QueueService {
   constructor(
     private http: HttpClient,
     private socket: Socket,
-    private auth: AuthService,
-    private spot: SpotifyService
+    private auth: AuthService
   ) {
     this.baseUrl = environment.apiUrl;
 
@@ -67,7 +65,7 @@ export class QueueService {
       return of(this.likes);
     } else {
       this.likes = new Set();
-      return this.spot.getMyLikes().pipe(
+      return this.auth.getMyLikes().pipe(
         map(likes => {
           for (const like of likes) {
             this.likes.add(like.trackId);
@@ -81,15 +79,23 @@ export class QueueService {
   public addTrack(trackId: string) {
     const queuerId = this.auth.uid;
 
-    return this.http.put(`${this.baseUrl}/queue/${this.queueId}/track`, {
-      trackId,
-      queuerId
-    });
+    return this.http
+      .put(`${this.baseUrl}/queue/${this.queueId}/track`, {
+        trackId,
+        queuerId
+      })
+      .pipe(
+        tap((res: any) => {
+          if (res.action === "DTK") {
+            this.auth.decrementTokens(res.amount);
+          }
+        })
+      );
   }
 
   public omnisearch(query: string) {
     const url = `${this.baseUrl}/queue/${this.queueId}/search?q=${query}`;
-    return this.http.get<Spotify.Track[]>(url);
+    return this.http.get<Spotify.SearchResult>(url);
   }
 
   public startQueue(deviceId: string) {
