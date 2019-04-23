@@ -22,11 +22,6 @@ export class TracksService {
     private queueService: QueueService
   ) {
     this.baseUrl = environment.apiUrl;
-
-    this.tracksSocket = this.socket.fromEvent<ITrack[]>("tracks").pipe(
-      tap(tracks => console.log(tracks)),
-      tap(tracks => (this._tracks = tracks))
-    );
   }
 
   public get tracks() {

@@ -1,6 +1,5 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { ITrack } from "../../services";
-import { TracksService } from "../../services/tracks.service";
 import { QueueService } from "../../services/queue.service";
 import { ActivatedRoute } from "@angular/router";
 
@@ -17,7 +16,6 @@ export class QueueComponent implements OnInit {
   public isHost!: boolean;
 
   constructor(
-    private trackService: TracksService,
     private queueService: QueueService,
     private route: ActivatedRoute
   ) {
@@ -30,7 +28,7 @@ export class QueueComponent implements OnInit {
 
   ngOnInit(): void {
     // listen for the tracks
-    this.trackService.$tracks.subscribe(tracks => {
+    this.queueService.$tracks.subscribe(tracks => {
       this.queueService.getLikes().subscribe(likes => {
         for (const track of tracks) {
           if (likes.has(track._id)) {

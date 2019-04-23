@@ -1,30 +1,40 @@
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 
+// regular style toast
+@import '~ngx-toastr/toastr.css';
+
+
 body {
   margin: 0px;
   padding: 0px;
   background-color: #FFF;
   width: 100vw;
+  height: 100vh;
   overflow-x: hidden;
+  background-image: linear-gradient(#f5b044, #dbad62);
 }
 
-body:before {
-  content: "";
-  position: absolute;
-  top: -500px;
-  bottom: 0;
-  left: -250px;
-  width: 250vw;
-  z-index: -1;
-  background: #f5b044;
-  transform: skew(-55deg);
-}
+// body:before {
+//   content: "";
+//   position: absolute;
+//   top: -500px;
+//   bottom: 0;
+//   left: -250px;
+//   width: 250vw;
+//   z-index: -1;
+//   background: #f5b044;
+//   transform: skew(-55deg);
+// }
 
 p,
 h1,
 h3,
 span {
   font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+p {
+  font-size: 14px;
 }
 
 .main-card {

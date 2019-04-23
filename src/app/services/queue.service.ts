@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of, merge } from "rxjs";
-import { tap, map, switchMap } from "rxjs/operators";
+import { tap, map, switchMap, catchError } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
 import { ITrack } from ".";
 import { AuthService } from "./auth.service";
+import { ToastrService } from "ngx-toastr";
 
 @Injectable({
   providedIn: "root"
@@ -18,6 +19,9 @@ export class QueueService {
   private player!: Spotify.PlaybackState;
   private playerSocket!: Observable<Spotify.PlaybackState>;
 
+  private _tracks!: ITrack[];
+  private tracksSocket!: Observable<ITrack[]>;
+
   private likes!: Set<string>;
 
   public queueId!: string;
@@ -25,7 +29,8 @@ export class QueueService {
   constructor(
     private http: HttpClient,
     private socket: Socket,
-    private auth: AuthService
+    private auth: AuthService,
+    private toaster: ToastrService
   ) {
     this.baseUrl = environment.apiUrl;
 
@@ -35,12 +40,38 @@ export class QueueService {
         tap(player => console.log(player)),
         tap(player => (this.player = player))
       );
+
+    this.tracksSocket = this.socket.fromEvent<ITrack[]>("tracks").pipe(
+      tap(tracks => console.log(tracks)),
+      tap(tracks => (this._tracks = tracks))
+    );
   }
 
   public setQueueId(queueId: string) {
     console.log(`Setting queue id: ${queueId}`);
     this.socket.emit("myId", queueId);
     this.queueId = queueId;
+  }
+
+  public get tracks() {
+    return this._tracks;
+  }
+
+  public get $tracks() {
+    if (this._tracks) {
+      return merge(of(this._tracks), this.tracksSocket);
+    } else {
+      return merge(this.getTracksHttp(), this.tracksSocket);
+    }
+  }
+
+  public getTracksHttp() {
+    return this.http
+      .get<ITrack[]>(`${this.baseUrl}/queue/${this.queueId}/tracks`)
+      .pipe(
+        tap(tracks => console.log({ tracks })),
+        tap(tracks => (this._tracks = tracks))
+      );
   }
 
   public get $player() {
@@ -112,9 +143,21 @@ export class QueueService {
   }
 
   public nextTrack() {
-    return this.http.post<ITrack>(`${this.baseUrl}/queue/next/`, {
-      uid: this.auth.uid
-    });
+    if (this.tracks.length === 0) {
+      this.toaster.error("Queue Empty");
+      return of(null);
+    }
+    return this.http
+      .post<ITrack>(`${this.baseUrl}/queue/next/`, {
+        uid: this.auth.uid
+      })
+      .pipe(
+        catchError(err => {
+          console.log(err);
+          this.toaster.error(err.error);
+          return of(null);
+        })
+      );
   }
 
   public playTrack(trackId: string) {

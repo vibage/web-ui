@@ -1,4 +1,5 @@
 <mat-card class="main-card">
   <app-track *ngFor="let track of tracks" [track]="track" [removable]="isHost" likeable="true" [playable]="isHost">
   </app-track>
+  <p *ngIf="tracks.length === 0"> Queue Empty. Add a song! </p>
 </mat-card>

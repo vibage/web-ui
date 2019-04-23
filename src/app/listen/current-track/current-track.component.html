@@ -9,7 +9,7 @@
     </div>
     <mat-progress-bar *ngIf="!isHost" color="primary" [value]="progress" mode="determinate">
     </mat-progress-bar>
-    <mat-slider *ngIf="isHost" max="100" min="0" [(ngModel)]="progress" (input)="hostActions.seek($event)"
+    <mat-slider *ngIf="isHost" max="100" min="0" [(ngModel)]="progress" (input)="playerService.seek($event)"
       color="primary">
     </mat-slider>
     {{ elapseReadable }} -
@@ -20,10 +20,10 @@
     <p *ngIf="!isHost"> Wait for host to start queue </p>
   </mat-card-content>
   <mat-card-actions *ngIf="isHost">
-    <button *ngIf="!isStarted" (click)="hostActions.start()" mat-button> Start </button>
-    <button *ngIf="isStarted" (click)="hostActions.next()" mat-button> Next Song </button>
-    <button *ngIf="!isPlaying && isStarted" (click)="hostActions.play()" mat-button> Play </button>
-    <button *ngIf="isPlaying && isStarted" (click)="hostActions.pause()" mat-button> Pause </button>
-    <button (click)="hostActions.vibe()" mat-button> Vibe Settings </button>
+    <button *ngIf="!isStarted" (click)="playerService.start()" mat-button> Start </button>
+    <button *ngIf="isStarted" (click)="playerService.nextTrack()" mat-button> Next </button>
+    <button *ngIf="!isPlaying && isStarted" (click)="playerService.play()" mat-button> Play </button>
+    <button *ngIf="isPlaying && isStarted" (click)="playerService.pause()" mat-button> Pause </button>
+    <button (click)="openVibe()" mat-button> Vibe Settings </button>
   </mat-card-actions>
 </mat-card>

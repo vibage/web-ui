@@ -1,4 +1,6 @@
 import { Component, Input } from "@angular/core";
+import { PlayerService } from "src/app/services/player.service";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-current-track",
@@ -11,12 +13,16 @@ export class CurrentTrackComponent {
   @Input() hostActions: any;
   @Input() elapse: number;
 
-  constructor() {}
+  constructor(private router: Router, public playerService: PlayerService) {}
 
   private msToReadable(ms: number) {
     const seconds = String(Math.floor(ms / 1000) % 60).padStart(2, "0");
     const minute = String(Math.floor(ms / (60 * 1000))).padStart(2, "0");
     return `${minute}:${seconds}`;
+  }
+
+  public openVibe() {
+    this.router.navigate(["vibe"]);
   }
 
   get progress() {

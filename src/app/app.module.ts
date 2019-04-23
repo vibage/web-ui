@@ -30,6 +30,9 @@ import { MatListModule } from "@angular/material/list";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material";
 
+// Other Libraries
+import { ToastrModule } from "ngx-toastr";
+
 // Socket
 import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
 
@@ -45,6 +48,12 @@ import { HomePageComponent } from "./pages/home-page/home-page.component";
 
 const config: SocketIoConfig = {
   url: environment.apiUrl
+};
+
+const toastConfig = {
+  timeOut: 10000,
+  positionClass: "toast-bottom-right",
+  preventDuplicates: true
 };
 
 @NgModule({
@@ -79,6 +88,7 @@ const config: SocketIoConfig = {
     MatListModule,
     MatFormFieldModule,
     MatInputModule,
+    ToastrModule.forRoot(toastConfig),
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase, "fizzle"),
     AngularFireAuthModule

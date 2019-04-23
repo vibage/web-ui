@@ -29,6 +29,8 @@ export class SearchComponent implements AfterViewInit {
 
   public previewTrack!: ITrack;
 
+  public loading!: boolean;
+
   constructor(
     private queueService: QueueService,
     private spot: SpotifyService,
@@ -49,8 +51,12 @@ export class SearchComponent implements AfterViewInit {
         map((e: KeyboardEvent) => (e.target as HTMLInputElement).value),
         tap(q => (this.query = q)),
         filter(q => q.length > 0),
+        tap(() => {
+          this.loading = true;
+          this.tracks = [];
+        }),
         debounceTime(300),
-        distinctUntilChanged(),
+        // distinctUntilChanged(),
         switchMap(q => this.queueService.omnisearch(q)),
         map(data => data.tracks.items)
       )
@@ -58,6 +64,7 @@ export class SearchComponent implements AfterViewInit {
         console.log({ tracks });
         const formattedTracks = tracks.map(this.spot.trackMapper);
         this.tracks = formattedTracks;
+        this.loading = false;
       });
     fromEvent(this.input.nativeElement, "focus").subscribe(() => {
       this.vibeService.$vibe.subscribe(vibe => {
