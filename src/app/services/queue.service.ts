@@ -205,7 +205,7 @@ export class QueueService {
   }
 
   public removeTrack(track: ITrack) {
-    const url = `${this.baseUrl}/queue/rmTrack/${track.id}`;
+    const url = `${this.baseUrl}/queue/rmTrack/${track._id}`;
     return this.auth.getUser().pipe(
       switchMap(user =>
         this.http.post(url, {

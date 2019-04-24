@@ -25,16 +25,4 @@ export class SpotifyService {
   public getHosts() {
     return this.http.get(`${this.baseUrl}/nearbyHost`);
   }
-
-  public trackMapper(track: Spotify.Track): ITrack {
-    const { id, name, artists, uri, duration_ms, album } = track;
-    return {
-      name,
-      album,
-      _id: id,
-      artist: artists[0].name,
-      uri,
-      duration_ms
-    };
-  }
 }
