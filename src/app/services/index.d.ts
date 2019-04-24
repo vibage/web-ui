@@ -18,7 +18,7 @@ export interface ITrack {
   album: any;
   uri: string;
   duration_ms: number;
-  _id: string;
+  id: string;
   isLiked?: boolean;
   likes?: number;
 }

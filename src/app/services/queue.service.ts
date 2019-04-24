@@ -126,7 +126,7 @@ export class QueueService {
 
   public omnisearch(query: string) {
     const url = `${this.baseUrl}/queue/${this.queueId}/search?q=${query}`;
-    return this.http.get<Spotify.SearchResult>(url);
+    return this.http.get<ITrack[]>(url);
   }
 
   public startQueue(deviceId: string) {
@@ -205,7 +205,7 @@ export class QueueService {
   }
 
   public removeTrack(track: ITrack) {
-    const url = `${this.baseUrl}/queue/rmTrack/${track._id}`;
+    const url = `${this.baseUrl}/queue/rmTrack/${track.id}`;
     return this.auth.getUser().pipe(
       switchMap(user =>
         this.http.post(url, {
