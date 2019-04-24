@@ -57,13 +57,11 @@ export class SearchComponent implements AfterViewInit {
         }),
         debounceTime(300),
         // distinctUntilChanged(),
-        switchMap(q => this.queueService.omnisearch(q)),
-        map(data => data.tracks.items)
+        switchMap(q => this.queueService.omnisearch(q))
       )
       .subscribe(tracks => {
         console.log({ tracks });
-        const formattedTracks = tracks.map(this.spot.trackMapper);
-        this.tracks = formattedTracks;
+        this.tracks = tracks;
         this.loading = false;
       });
     fromEvent(this.input.nativeElement, "focus").subscribe(() => {
@@ -85,7 +83,7 @@ export class SearchComponent implements AfterViewInit {
   }
 
   addTrack() {
-    this.queueService.addTrack(this.previewTrack._id).subscribe(data => {
+    this.queueService.addTrack(this.previewTrack.id).subscribe(data => {
       if (data.error) {
         alert(data.message);
       }

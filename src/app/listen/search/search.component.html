@@ -12,7 +12,7 @@
 </mat-card>
 
 <div id="trackPreview" *ngIf="previewTrack">
-  <img [src]="previewTrack.album.images[0].url" />
+  <img [src]="previewTrack.imageUrl" />
   <p (click)="close()"> ❌ </p>
   <h1><b>{{ previewTrack.artist }}</b></h1>
   <h3> {{ previewTrack.name }} </h3>
