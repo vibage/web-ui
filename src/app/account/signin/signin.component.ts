@@ -31,14 +31,10 @@ export class SigninComponent implements OnInit {
         userRes => {
           if (userRes) {
             this.close.emit();
-            // this user already exist
-            this.router.navigate(["account"]);
           } else {
             // we need to create the user
             this.auth.createUser(this.uid, user.displayName).subscribe(data => {
-              console.log(data);
               this.close.emit();
-              this.router.navigate(["account"]);
             });
           }
         },

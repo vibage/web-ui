@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { interval, from, BehaviorSubject } from "rxjs";
-import { switchMap } from "rxjs/operators";
+import { switchMap, filter } from "rxjs/operators";
 import { AuthService } from "./auth.service";
 import { QueueService } from "./queue.service";
 import { MatSliderChange } from "@angular/material";
@@ -13,6 +13,7 @@ export class PlayerService {
   private playerState: Spotify.PlaybackState;
 
   private gettingNextSong: boolean;
+  private lastTrackId: string;
 
   private deviceId: string;
 
@@ -23,7 +24,10 @@ export class PlayerService {
   public createTimer() {
     // start timer
     interval(300)
-      .pipe(switchMap(() => from(this.player.getCurrentState())))
+      .pipe(
+        filter(() => !this.gettingNextSong),
+        switchMap(() => from(this.player.getCurrentState()))
+      )
       .subscribe(this.processState.bind(this));
   }
 
@@ -64,6 +68,11 @@ export class PlayerService {
 
   private playerStateChanged(state: Spotify.PlaybackState) {
     this.queueService.sendPlayerState(state).subscribe();
+    const newId = state.track_window.current_track.id;
+
+    if (this.gettingNextSong && newId !== this.lastTrackId) {
+      this.gettingNextSong = false;
+    }
     this.processState(state);
   }
 
@@ -90,18 +99,17 @@ export class PlayerService {
     const { position, duration } = state;
     if (duration - position < 1100) {
       console.log("Times up");
+      this.lastTrackId = state.track_window.current_track.id;
       this.nextTrack();
     }
   }
 
   public nextTrack() {
     if (this.gettingNextSong) {
-      console.log("too much");
       return;
     }
     this.gettingNextSong = true;
     this.queueService.nextTrack().subscribe(() => {
-      this.gettingNextSong = false;
       console.log("Next Song");
     });
   }

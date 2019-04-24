@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, of, merge } from "rxjs";
+import { Observable, of, merge, AsyncSubject } from "rxjs";
 import { tap, map, switchMap, catchError } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
@@ -21,6 +21,7 @@ export class QueueService {
 
   private _tracks!: ITrack[];
   private tracksSocket!: Observable<ITrack[]>;
+  public trackSubject = new AsyncSubject<ITrack[]>();
 
   private likes!: Set<string>;
 
@@ -41,10 +42,9 @@ export class QueueService {
         tap(player => (this.player = player))
       );
 
-    this.tracksSocket = this.socket.fromEvent<ITrack[]>("tracks").pipe(
-      tap(tracks => console.log(tracks)),
-      tap(tracks => (this._tracks = tracks))
-    );
+    this.tracksSocket = this.socket
+      .fromEvent<ITrack[]>("tracks")
+      .pipe(tap(this.trackHandler.bind(this)));
   }
 
   public setQueueId(queueId: string) {
@@ -53,25 +53,23 @@ export class QueueService {
     this.queueId = queueId;
   }
 
-  public get tracks() {
-    return this._tracks;
-  }
-
   public get $tracks() {
-    if (this._tracks) {
-      return merge(of(this._tracks), this.tracksSocket);
-    } else {
-      return merge(this.getTracksHttp(), this.tracksSocket);
-    }
+    return merge(this.getTracksHttp(), this.tracksSocket, this.trackSubject);
   }
 
   public getTracksHttp() {
+    if (!this.queueId) {
+      return;
+    }
     return this.http
       .get<ITrack[]>(`${this.baseUrl}/queue/${this.queueId}/tracks`)
-      .pipe(
-        tap(tracks => console.log({ tracks })),
-        tap(tracks => (this._tracks = tracks))
-      );
+      .pipe(tap(this.trackHandler.bind(this)));
+  }
+
+  private trackHandler(tracks: ITrack[]) {
+    console.log({ tracks });
+    this.trackSubject.next(tracks);
+    this._tracks = tracks;
   }
 
   public get $player() {
@@ -83,8 +81,6 @@ export class QueueService {
   }
 
   public getPlayerHttp() {
-    console.log(this.queueId);
-
     const url = `${this.baseUrl}/queue/${this.queueId}/player`;
     return this.http
       .get<Spotify.PlaybackState>(url)
@@ -143,7 +139,7 @@ export class QueueService {
   }
 
   public nextTrack() {
-    if (this.tracks.length === 0) {
+    if (this._tracks.length === 0) {
       this.toaster.error("Queue Empty");
       return of(null);
     }
