@@ -83,7 +83,7 @@ export class SearchComponent implements AfterViewInit {
   }
 
   addTrack() {
-    this.queueService.addTrack(this.previewTrack.id).subscribe(data => {
+    this.queueService.addTrack(this.previewTrack._id).subscribe(data => {
       if (data.error) {
         alert(data.message);
       }
