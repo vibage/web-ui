@@ -9,12 +9,6 @@
       <mat-icon svgIcon="heart" *ngIf="isLiked"></mat-icon>
       <mat-icon svgIcon="heart_outline" *ngIf="!isLiked"></mat-icon>
     </button>
-    <button mat-icon-button *ngIf="playable" (click)="play()">
-      <mat-icon svgIcon="play"></mat-icon>
-    </button>
-    <button mat-icon-button *ngIf="removable" (click)="remove()">
-      <mat-icon svgIcon="delete" id="deleteIcon"></mat-icon>
-    </button>
     <button mat-mini-fab class="addable" *ngIf="addable" (click)="add()">
       <mat-icon svgIcon="add"></mat-icon>
     </button>
@@ -32,4 +26,13 @@
   <p> {{ track.artist }} </p>
 
   <p *ngIf="userName"> Added By: {{ userName }}</p>
+
+  <button mat-raised-button *ngIf="removable" color="primary" (click)="remove()">
+    <mat-icon svgIcon="delete"></mat-icon> Remove Track From Queue
+  </button>
+  <br>
+  <br>
+  <button mat-raised-button *ngIf="playable" color="primary" (click)="Play">
+    <mat-icon svgIcon="play"></mat-icon> Instant Play
+  </button>
 </div>

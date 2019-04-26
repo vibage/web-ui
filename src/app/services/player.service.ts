@@ -18,6 +18,7 @@ export class PlayerService {
   private deviceId: string;
 
   public $playerState = new BehaviorSubject<Spotify.PlaybackState>(null);
+  public playerLoaded = false;
 
   constructor(private auth: AuthService, private queueService: QueueService) {}
 
@@ -31,12 +32,11 @@ export class PlayerService {
       .subscribe(this.processState.bind(this));
   }
 
-  public start() {
-    if (this.player) {
-      // player has already been created
+  public loadPlayer() {
+    // don't run if spotify isn't loaded yet
+    if (this.playerLoaded) {
       return;
     }
-
     console.log("Creating Player");
     const player = new Spotify.Player({
       name: "Vibage",
@@ -62,6 +62,10 @@ export class PlayerService {
     this.player = player;
   }
 
+  public start() {
+    this.loadPlayer();
+  }
+
   private logError({ message }) {
     console.error(message);
   }
@@ -82,6 +86,7 @@ export class PlayerService {
   private playerReady({ device_id }) {
     console.log(`Player ready Device ID: ${device_id}`);
     this.deviceId = device_id;
+    this.playerLoaded = true;
 
     // start the queue
     this.queueService.startQueue(this.deviceId).subscribe(() => {
