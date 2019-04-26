@@ -138,6 +138,17 @@ export class QueueService {
     );
   }
 
+  public stopQueue() {
+    const url = `${this.baseUrl}/queue/stop`;
+    return this.auth.getUser().pipe(
+      switchMap(user =>
+        this.http.post(url, {
+          uid: user.uid
+        })
+      )
+    );
+  }
+
   public nextTrack() {
     if (this._tracks.length === 0) {
       this.toaster.error("Queue Empty");

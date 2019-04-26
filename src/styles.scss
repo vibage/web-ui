@@ -42,7 +42,7 @@ p {
 }
 
 .pop-card {
-  position: absolute;
+  position: fixed;
   top: 5%;
   left: 5%;
   width: 90%;
@@ -53,4 +53,20 @@ p {
   z-index: 10;
   padding: 20px;
   box-sizing: border-box;
+
+  .close-button {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+  }
+
+  .close-button:before {
+    content: "×";
+    color: grey;
+    font-size: 30px;
+  }
+
+  .close-button:hover {
+    color: red;
+  }
 }

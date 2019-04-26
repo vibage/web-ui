@@ -44,4 +44,8 @@ export class VibeService {
       vibeId
     });
   }
+
+  public setPlaylist(vibeId: string, playlistUrl: string) {
+    console.log(playlistUrl);
+  }
 }

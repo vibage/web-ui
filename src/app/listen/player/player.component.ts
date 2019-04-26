@@ -26,11 +26,10 @@ export class PlayerComponent implements OnInit {
 
   ngOnInit() {
     this.playerService.$playerState.subscribe(state => {
-      if (!state) {
-        return;
-      }
-      this.elapse = state.position;
       this.playerState = state;
+      if (state) {
+        this.elapse = state.position;
+      }
     });
   }
 }

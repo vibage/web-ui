@@ -82,6 +82,11 @@ export class AuthService {
     }
   }
 
+  public getUserData(userId: string) {
+    const url = `${this.baseUrl}/user/${userId}/info`;
+    return this.http.get(url);
+  }
+
   public getUserHttp(uid: string) {
     return this.http.get<IUser>(`${this.baseUrl}/user/${uid}`).pipe(
       tap(user => {

@@ -18,5 +18,18 @@
     <button mat-mini-fab class="addable" *ngIf="addable" (click)="add()">
       <mat-icon svgIcon="add"></mat-icon>
     </button>
+    <button mat-icon-button *ngIf="!addable" (click)="showMore()">
+      <mat-icon svgIcon="more"></mat-icon>
+    </button>
   </div>
+</div>
+
+<div class="pop-card" *ngIf="showMoreCard">
+  <div class="close-button" (click)="showMoreCard = false"> </div>
+
+  <img [src]="track.imageUrl" />
+  <h3> {{ track.name }} </h3>
+  <p> {{ track.artist }} </p>
+
+  <p *ngIf="userName"> Added By: {{ userName }}</p>
 </div>

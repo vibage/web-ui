@@ -25,7 +25,7 @@ export class PlayerService {
     // start timer
     interval(300)
       .pipe(
-        filter(() => !this.gettingNextSong),
+        filter(() => !this.gettingNextSong && Boolean(this.player)),
         switchMap(() => from(this.player.getCurrentState()))
       )
       .subscribe(this.processState.bind(this));
@@ -66,8 +66,11 @@ export class PlayerService {
     console.error(message);
   }
 
-  private playerStateChanged(state: Spotify.PlaybackState) {
+  private playerStateChanged(state: Spotify.PlaybackState | null) {
     this.queueService.sendPlayerState(state).subscribe();
+    if (!state) {
+      return;
+    }
     const newId = state.track_window.current_track.id;
 
     if (this.gettingNextSong && newId !== this.lastTrackId) {
@@ -111,6 +114,13 @@ export class PlayerService {
     this.gettingNextSong = true;
     this.queueService.nextTrack().subscribe(() => {
       console.log("Next Song");
+    });
+  }
+
+  public stop() {
+    this.$playerState.next(null);
+    this.queueService.stopQueue().subscribe(() => {
+      console.log("Stop Queue");
     });
   }
 
