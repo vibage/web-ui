@@ -30,4 +30,8 @@ export class VibeSettingsComponent implements OnInit {
       console.log(data);
     });
   }
+
+  setPlaylist(event) {
+    console.log(event.target.value);
+  }
 }

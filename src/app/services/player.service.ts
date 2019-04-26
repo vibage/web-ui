@@ -18,6 +18,7 @@ export class PlayerService {
   private deviceId: string;
 
   public $playerState = new BehaviorSubject<Spotify.PlaybackState>(null);
+  public playerLoaded = false;
 
   constructor(private auth: AuthService, private queueService: QueueService) {}
 
@@ -25,18 +26,17 @@ export class PlayerService {
     // start timer
     interval(300)
       .pipe(
-        filter(() => !this.gettingNextSong),
+        filter(() => !this.gettingNextSong && Boolean(this.player)),
         switchMap(() => from(this.player.getCurrentState()))
       )
       .subscribe(this.processState.bind(this));
   }
 
-  public start() {
-    if (this.player) {
-      // player has already been created
+  public loadPlayer() {
+    // don't run if spotify isn't loaded yet
+    if (this.playerLoaded) {
       return;
     }
-
     console.log("Creating Player");
     const player = new Spotify.Player({
       name: "Vibage",
@@ -62,12 +62,19 @@ export class PlayerService {
     this.player = player;
   }
 
+  public start() {
+    this.loadPlayer();
+  }
+
   private logError({ message }) {
     console.error(message);
   }
 
-  private playerStateChanged(state: Spotify.PlaybackState) {
+  private playerStateChanged(state: Spotify.PlaybackState | null) {
     this.queueService.sendPlayerState(state).subscribe();
+    if (!state) {
+      return;
+    }
     const newId = state.track_window.current_track.id;
 
     if (this.gettingNextSong && newId !== this.lastTrackId) {
@@ -79,6 +86,7 @@ export class PlayerService {
   private playerReady({ device_id }) {
     console.log(`Player ready Device ID: ${device_id}`);
     this.deviceId = device_id;
+    this.playerLoaded = true;
 
     // start the queue
     this.queueService.startQueue(this.deviceId).subscribe(() => {
@@ -111,6 +119,13 @@ export class PlayerService {
     this.gettingNextSong = true;
     this.queueService.nextTrack().subscribe(() => {
       console.log("Next Song");
+    });
+  }
+
+  public stop() {
+    this.$playerState.next(null);
+    this.queueService.stopQueue().subscribe(() => {
+      console.log("Stop Queue");
     });
   }
 

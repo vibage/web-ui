@@ -2,10 +2,13 @@
   <a onclick="window.history.back()" class="back"> &larr; back </a>
   <div>
     <h3> Selected Vibe: </h3>
-
     <div class="vibe">
       <p><b> {{ currentVibe.name }} </b></p>
       <p *ngIf="currentVibe.explicit"> Explicit </p>
+      <div *ngIf="currentVibe.playlistId">
+        <p> Set backup playlist id (from spotify) </p>
+        <input mat-input placeholder="Enter Playlist URL" (input)="setPlaylist($event)" />
+      </div>
     </div>
   </div>
   <hr>

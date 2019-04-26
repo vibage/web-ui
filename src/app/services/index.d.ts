@@ -18,6 +18,7 @@ export interface ITrack {
   album: any;
   uri: string;
   duration_ms: number;
+  addedBy: string;
   _id: string;
   isLiked?: boolean;
   likes?: number;
@@ -42,6 +43,7 @@ export interface IVibe {
   name: string;
   genres: string[];
   canUserAddTrack: boolean;
+  playlistId: string;
   _id: string;
 }
 

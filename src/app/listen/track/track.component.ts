@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { MatIconRegistry } from "@angular/material";
-import { ITrack } from "../../services";
+import { ITrack, IUser } from "../../services";
 import { AuthService } from "../../services/auth.service";
 import { QueueService } from "../../services/queue.service";
 
@@ -19,6 +19,8 @@ export class TrackComponent implements OnInit {
   @Input() addFunc!: (track: ITrack) => void;
 
   public isLiked = false;
+  public showMoreCard = false;
+  public userName!: string;
 
   constructor(
     private auth: AuthService,
@@ -33,6 +35,7 @@ export class TrackComponent implements OnInit {
     this.registerIcon("heart_outline");
     this.registerIcon("play");
     this.registerIcon("add");
+    this.registerIcon("more");
     if (this.track.isLiked) {
       this.isLiked = true;
     }
@@ -74,6 +77,13 @@ export class TrackComponent implements OnInit {
   remove() {
     this.queueService.removeTrack(this.track).subscribe(data => {
       console.log(data);
+    });
+  }
+
+  showMore() {
+    this.showMoreCard = true;
+    this.auth.getUserData(this.track.addedBy).subscribe((user: IUser) => {
+      this.userName = user.name;
     });
   }
 }

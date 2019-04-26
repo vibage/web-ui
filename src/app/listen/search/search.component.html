@@ -11,9 +11,9 @@
   </div>
 </mat-card>
 
-<div id="trackPreview" *ngIf="previewTrack">
+<div id="trackPreview" *ngIf="previewTrack" class="pop-card">
   <img [src]="previewTrack.imageUrl" />
-  <p (click)="close()"> ❌ </p>
+  <p class="close-button" (click)="close()"></p>
   <h1><b>{{ previewTrack.artist }}</b></h1>
   <h3> {{ previewTrack.name }} </h3>
   <button mat-raised-button (click)="addTrack()"> Confirm Song </button>

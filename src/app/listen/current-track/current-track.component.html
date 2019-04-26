@@ -9,7 +9,7 @@
     </div>
     <mat-progress-bar *ngIf="!isHost" color="primary" [value]="progress" mode="determinate">
     </mat-progress-bar>
-    <mat-slider *ngIf="isHost" max="100" min="0" [(ngModel)]="progress" (input)="playerService.seek($event)"
+    <mat-slider *ngIf="isHost" max="100" min="0" [value]="progress" (input)="playerService.seek($event)"
       color="primary">
     </mat-slider>
     {{ elapseReadable }} -
@@ -24,6 +24,7 @@
     <button *ngIf="isStarted" (click)="playerService.nextTrack()" mat-button> Next </button>
     <button *ngIf="!isPlaying && isStarted" (click)="playerService.play()" mat-button> Play </button>
     <button *ngIf="isPlaying && isStarted" (click)="playerService.pause()" mat-button> Pause </button>
+    <button *ngIf="isStarted" (click)="playerService.stop()" mat-button> Stop </button>
     <button (click)="openVibe()" mat-button> Vibe Settings </button>
   </mat-card-actions>
 </mat-card>
