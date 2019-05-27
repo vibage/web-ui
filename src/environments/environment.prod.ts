@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: "https://fizzle-endpoint.herokuapp.com",
+  apiUrl: "https://vibage.appspot.com",
   firebase: {
     apiKey: "AIzaSyAXd5tgDs5ZsDkDBgU41IfbkX-i81dAP3M",
     authDomain: "vibage.firebaseapp.com",

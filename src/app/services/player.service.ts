@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { interval, from, BehaviorSubject } from "rxjs";
-import { switchMap, filter } from "rxjs/operators";
+import { switchMap, filter, takeUntil, takeWhile, take } from "rxjs/operators";
 import { AuthService } from "./auth.service";
 import { QueueService } from "./queue.service";
 import { MatSliderChange } from "@angular/material";
@@ -12,13 +12,16 @@ export class PlayerService {
   private player: Spotify.SpotifyPlayer;
   private playerState: Spotify.PlaybackState;
 
+  public queueStarted: boolean; // for telling if the queue is on or not
+
   private gettingNextSong: boolean;
-  private lastTrackId: string;
 
   private deviceId: string;
 
   public $playerState = new BehaviorSubject<Spotify.PlaybackState>(null);
   public playerLoaded = false;
+
+  public isHost = false;
 
   constructor(private auth: AuthService, private queueService: QueueService) {}
 
@@ -26,6 +29,7 @@ export class PlayerService {
     // start timer
     interval(300)
       .pipe(
+        takeWhile(() => this.queueStarted), // so the timer will stop once the queue is stopped
         filter(() => !this.gettingNextSong && Boolean(this.player)),
         switchMap(() => from(this.player.getCurrentState()))
       )
@@ -63,7 +67,20 @@ export class PlayerService {
   }
 
   public start() {
-    this.loadPlayer();
+    console.log("Starting queue");
+    this.queueStarted = true;
+    // get the user, if they are not the active player then don't start
+    this.auth.getUserOnce().subscribe(user => {
+      if (user._id !== this.queueService.queueId || !this.isHost) {
+        console.log("User is not the host");
+        return;
+      }
+      if (this.playerLoaded) {
+        this.startQueueHttp();
+      } else {
+        this.loadPlayer();
+      }
+    });
   }
 
   private logError({ message }) {
@@ -75,11 +92,6 @@ export class PlayerService {
     if (!state) {
       return;
     }
-    const newId = state.track_window.current_track.id;
-
-    if (this.gettingNextSong && newId !== this.lastTrackId) {
-      this.gettingNextSong = false;
-    }
     this.processState(state);
   }
 
@@ -88,8 +100,21 @@ export class PlayerService {
     this.deviceId = device_id;
     this.playerLoaded = true;
 
-    // start the queue
+    this.auth.getUserOnce().subscribe(user => {
+      if (user.player) {
+        this.queueService.resume().subscribe(() => {
+          console.log("Queue Resumed");
+          this.createTimer();
+        });
+      } else {
+        this.startQueueHttp();
+      }
+    });
+  }
+
+  private startQueueHttp() {
     this.queueService.startQueue(this.deviceId).subscribe(() => {
+      this.queueStarted = true;
       this.createTimer();
     });
   }
@@ -107,7 +132,6 @@ export class PlayerService {
     const { position, duration } = state;
     if (duration - position < 1100) {
       console.log("Times up");
-      this.lastTrackId = state.track_window.current_track.id;
       this.nextTrack();
     }
   }
@@ -117,13 +141,24 @@ export class PlayerService {
       return;
     }
     this.gettingNextSong = true;
-    this.queueService.nextTrack().subscribe(() => {
+    this.queueService.nextTrack().subscribe(res => {
+      if (res === null) {
+        // queue was empty
+        console.log("Queue was empty");
+        this.playerState = null;
+      }
       console.log("Next Song");
+      // wait 3 seconds before letting you go to the next song
+      setTimeout(() => {
+        this.gettingNextSong = false;
+      }, 3000);
     });
   }
 
   public stop() {
+    this.queueStarted = false;
     this.$playerState.next(null);
+    this.playerState = null;
     this.queueService.stopQueue().subscribe(() => {
       console.log("Stop Queue");
     });

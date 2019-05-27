@@ -167,6 +167,12 @@ export class QueueService {
       );
   }
 
+  public resume() {
+    return this.http.post(`${this.baseUrl}/queue/resume`, {
+      uid: this.auth.uid
+    });
+  }
+
   public playTrack(trackId: string) {
     return this.http.put(`${this.baseUrl}/queue/playTrack`, {
       uid: this.auth.uid,

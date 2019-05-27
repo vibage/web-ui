@@ -21,11 +21,17 @@ export class PlayerComponent implements OnInit {
     this.auth.getUser().subscribe(user => {
       this.queueService.setQueueId(user._id);
       this.idLoaded = true;
+      this.playerService.isHost = true;
+      // resume player if the player exists
+      if (user.player) {
+        this.playerService.start();
+      }
     });
   }
 
   ngOnInit() {
     this.playerService.$playerState.subscribe(state => {
+      // console.log("player state", state);
       this.playerState = state;
       if (state) {
         this.elapse = state.position;

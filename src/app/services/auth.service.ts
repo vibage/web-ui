@@ -3,7 +3,7 @@ import { auth } from "firebase/app";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
-import { tap, switchMap, filter, map } from "rxjs/operators";
+import { tap, switchMap, filter, map, take } from "rxjs/operators";
 import { Observable, of, concat, BehaviorSubject } from "rxjs";
 import { IUser, ILike } from ".";
 
@@ -41,6 +41,14 @@ export class AuthService {
       return concat(of(this.user), this.$user);
     } else {
       return this.$user;
+    }
+  }
+
+  public getUserOnce() {
+    if (this.user) {
+      return of(this.user);
+    } else {
+      return this.$user.pipe(take(1));
     }
   }
 

@@ -1,0 +1,8 @@
+runtime: nodejs
+api_version: 1
+handlers:
+  - url: /
+    static_files: dist/front-end/index.html
+    upload: dist/front-end/index.html
+  - url: /
+    static_dir: dist/front-end

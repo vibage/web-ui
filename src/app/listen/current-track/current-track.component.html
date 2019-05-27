@@ -1,5 +1,5 @@
 <mat-card class="main-card">
-  <mat-card-content *ngIf="isStarted">
+  <mat-card-content *ngIf="isStarted && isOn">
     <div id="top">
       <img *ngIf="imgUrl" [src]="imgUrl" />
       <div>
@@ -15,16 +15,17 @@
     {{ elapseReadable }} -
     {{ durationReadable }}
   </mat-card-content>
-  <mat-card-content *ngIf="!isStarted">
-    <p *ngIf="isHost"> Press start to begin queue </p>
-    <p *ngIf="!isHost"> Wait for host to start queue </p>
+  <mat-card-content>
+    <p *ngIf="isHost && !isOn"> Press start to begin queue </p>
+    <p *ngIf="isHost && !isStarted && isOn"> Queue will play once someone adds a song </p>
+    <p *ngIf="!isHost && !isOn"> Wait for host to start queue </p>
   </mat-card-content>
   <mat-card-actions *ngIf="isHost">
-    <button *ngIf="!isStarted" (click)="playerService.start()" mat-button> Start </button>
-    <button *ngIf="isStarted" (click)="playerService.nextTrack()" mat-button> Next </button>
-    <button *ngIf="!isPlaying && isStarted" (click)="playerService.play()" mat-button> Play </button>
-    <button *ngIf="isPlaying && isStarted" (click)="playerService.pause()" mat-button> Pause </button>
-    <button *ngIf="isStarted" (click)="playerService.stop()" mat-button> Stop </button>
-    <button (click)="openVibe()" mat-button> Vibe Settings </button>
+    <button *ngIf="!isOn" (click)="playerService.start()" mat-button> Start </button>
+    <button *ngIf="isOn" (click)="playerService.nextTrack()" mat-button> Next </button>
+    <button *ngIf="!isPlaying && isOn" (click)="playerService.play()" mat-button> Play </button>
+    <button *ngIf="isPlaying && isOn" (click)="playerService.pause()" mat-button> Pause </button>
+    <button *ngIf="isOn" (click)="playerService.stop()" mat-button> Stop </button>
+    <button (click)="openVibe()" mat-button> Settings </button>
   </mat-card-actions>
 </mat-card>

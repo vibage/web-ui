@@ -10,6 +10,8 @@ export interface IUser {
   accessToken?: string;
   tokens: number;
   currentVibe: string;
+  queueOn: boolean;
+  player: Spotify.PlaybackContext;
 }
 
 export interface ITrack {

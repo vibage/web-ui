@@ -12,6 +12,7 @@ export class CurrentTrackComponent {
   @Input() isHost: boolean;
   @Input() hostActions: any;
   @Input() elapse: number;
+  @Input() isOn: boolean;
 
   constructor(private router: Router, public playerService: PlayerService) {}
 
@@ -40,7 +41,7 @@ export class CurrentTrackComponent {
 
   get isPlaying() {
     if (this.isStarted) {
-      return Boolean(!this.playerState.paused);
+      return Boolean(this.playerState && !this.playerState.paused);
     } else {
       return true;
     }

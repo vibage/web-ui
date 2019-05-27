@@ -1,6 +1,6 @@
 <app-search></app-search>
 
-<app-current-track [elapse]="elapse" [playerState]="playerState" isHost="true">
+<app-current-track [elapse]="elapse" [playerState]="playerState" isHost="true" [isOn]="playerService.queueStarted">
 </app-current-track>
 
 <app-queue host="true" *ngIf="idLoaded"></app-queue>

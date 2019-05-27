@@ -24,7 +24,6 @@ export class ListenComponent implements OnInit, OnDestroy {
         if (!player) {
           return;
         }
-
         let { position } = player;
 
         this.elapse = position;
