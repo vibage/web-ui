@@ -8,8 +8,7 @@ import { Router } from "@angular/router";
   styleUrls: ["./signin.component.scss"]
 })
 export class SigninComponent implements OnInit {
-  public uid: string;
-  public name: string;
+  public isLoggedIn = false;
 
   @Output() private close = new EventEmitter<void>();
 
@@ -21,27 +20,15 @@ export class SigninComponent implements OnInit {
     this.close.emit();
   }
 
-  googleLogin() {
-    this.auth.GoogleAuth().then(({ user }) => {
-      console.log(user);
-      this.uid = user.uid;
-      // see if uid already exists, if so then redirect to account page.
-
-      this.auth.getUserHttp(user.uid).subscribe(
-        userRes => {
-          if (userRes) {
-            this.close.emit();
-          } else {
-            // we need to create the user
-            this.auth.createUser(this.uid, user.displayName).subscribe(data => {
-              this.close.emit();
-            });
-          }
-        },
-        error => {
-          console.log(error);
-        }
-      );
-    });
+  googleLogin(): void {
+    this.auth.googleLogin().subscribe(
+      () => {
+        this.isLoggedIn = true;
+        this.close.emit();
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 }

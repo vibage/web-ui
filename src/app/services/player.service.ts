@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { interval, from, BehaviorSubject } from "rxjs";
+import { interval, from, BehaviorSubject, combineLatest } from "rxjs";
 import { switchMap, filter, takeUntil, takeWhile, take } from "rxjs/operators";
 import { AuthService } from "./auth.service";
 import { QueueService } from "./queue.service";
@@ -24,6 +24,19 @@ export class PlayerService {
   public isHost = false;
 
   constructor(private auth: AuthService, private queueService: QueueService) {}
+
+  // this is the state of the component
+  public queueStateSubject = new BehaviorSubject<boolean>(false);
+
+  public ngOnInit(): void {
+    combineLatest(this.auth.$user, this.queueStateSubject).subscribe(
+      ([user, queueOn]) => {
+        if (!queueOn) {
+          return;
+        }
+      }
+    );
+  }
 
   public createTimer() {
     // start timer
@@ -70,7 +83,7 @@ export class PlayerService {
     console.log("Starting queue");
     this.queueStarted = true;
     // get the user, if they are not the active player then don't start
-    this.auth.getUserOnce().subscribe(user => {
+    this.auth.$user.pipe(take(1)).subscribe(user => {
       if (user._id !== this.queueService.queueId || !this.isHost) {
         console.log("User is not the host");
         return;
@@ -100,7 +113,7 @@ export class PlayerService {
     this.deviceId = device_id;
     this.playerLoaded = true;
 
-    this.auth.getUserOnce().subscribe(user => {
+    this.auth.$user.pipe(take(1)).subscribe(user => {
       if (user.player) {
         this.queueService.resume().subscribe(() => {
           console.log("Queue Resumed");

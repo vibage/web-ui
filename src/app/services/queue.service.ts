@@ -1,7 +1,14 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, of, merge, AsyncSubject } from "rxjs";
-import { tap, map, switchMap, catchError } from "rxjs/operators";
+import {
+  Observable,
+  of,
+  merge,
+  AsyncSubject,
+  BehaviorSubject,
+  ReplaySubject
+} from "rxjs";
+import { tap, map, switchMap, catchError, shareReplay } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
 import { ITrack } from ".";
@@ -13,19 +20,32 @@ import { ToastrService } from "ngx-toastr";
 })
 export class QueueService {
   private baseUrl!: string;
-
-  public currentTrack!: ITrack;
-
-  private player!: Spotify.PlaybackState;
-  private playerSocket!: Observable<Spotify.PlaybackState>;
-
-  private _tracks!: ITrack[];
-  private tracksSocket!: Observable<ITrack[]>;
-  public trackSubject = new AsyncSubject<ITrack[]>();
-
   private likes!: Set<string>;
 
+  public tracks$!: Observable<ITrack[]>;
+  public player$!: Observable<Spotify.PlaybackState>;
+  public queueIdSubject = new ReplaySubject<string>();
+
+  public currentTrack!: ITrack;
   public queueId!: string;
+
+  private getTracksHttp() {
+    return this.queueIdSubject.pipe(
+      switchMap(queueId =>
+        this.http.get<ITrack[]>(`${this.baseUrl}/queue/${queueId}/tracks`)
+      )
+    );
+  }
+
+  private getPlayerHttp() {
+    return this.queueIdSubject.pipe(
+      switchMap(queueId =>
+        this.http.get<Spotify.PlaybackState>(
+          `${this.baseUrl}/queue/${queueId}/player`
+        )
+      )
+    );
+  }
 
   constructor(
     private http: HttpClient,
@@ -35,72 +55,41 @@ export class QueueService {
   ) {
     this.baseUrl = environment.apiUrl;
 
-    this.playerSocket = this.socket
-      .fromEvent<Spotify.PlaybackState>("player")
-      .pipe(
-        tap(player => console.log(player)),
-        tap(player => (this.player = player))
-      );
+    const playerSocket = this.socket.fromEvent<Spotify.PlaybackState>("player");
+    const tracksSocket = this.socket.fromEvent<ITrack[]>("tracks");
 
-    this.tracksSocket = this.socket
-      .fromEvent<ITrack[]>("tracks")
-      .pipe(tap(this.trackHandler.bind(this)));
+    this.tracks$ = merge(this.getTracksHttp(), tracksSocket).pipe(
+      tap(tracks => console.log("Tracks:", tracks)),
+      map(tracks =>
+        tracks.map(track => {
+          if (this.likes.has(track._id)) {
+            track.isLiked = true;
+          }
+          return track;
+        })
+      ),
+      shareReplay(1)
+    );
+
+    this.auth.likes$.subscribe(likes => {
+      const likeSet = new Set<string>();
+      for (const like of likes) {
+        likeSet.add(like.trackId);
+      }
+      this.likes = likeSet;
+    });
+
+    this.player$ = merge(this.getPlayerHttp(), playerSocket).pipe(
+      tap(x => console.log(`Player: ${x}`)),
+      shareReplay(1)
+    );
   }
 
   public setQueueId(queueId: string) {
     console.log(`Setting queue id: ${queueId}`);
     this.socket.emit("myId", queueId);
     this.queueId = queueId;
-  }
-
-  public get $tracks() {
-    return merge(this.getTracksHttp(), this.tracksSocket, this.trackSubject);
-  }
-
-  public getTracksHttp() {
-    if (!this.queueId) {
-      return;
-    }
-    return this.http
-      .get<ITrack[]>(`${this.baseUrl}/queue/${this.queueId}/tracks`)
-      .pipe(tap(this.trackHandler.bind(this)));
-  }
-
-  private trackHandler(tracks: ITrack[]) {
-    console.log({ tracks });
-    this.trackSubject.next(tracks);
-    this._tracks = tracks;
-  }
-
-  public get $player() {
-    if (this.player) {
-      return merge(of(this.player), this.playerSocket);
-    } else {
-      return merge(this.getPlayerHttp(), this.playerSocket);
-    }
-  }
-
-  public getPlayerHttp() {
-    const url = `${this.baseUrl}/queue/${this.queueId}/player`;
-    return this.http
-      .get<Spotify.PlaybackState>(url)
-      .pipe(tap(player => (this.player = player)));
-  }
-
-  public getLikes() {
-    if (this.likes) {
-      return of(this.likes);
-    } else {
-      this.likes = new Set();
-      return this.auth.getMyLikes().pipe(
-        map(likes => {
-          for (const like of likes) {
-            this.likes.add(like.trackId);
-          }
-          return this.likes;
-        })
-      );
-    }
+    this.queueIdSubject.next(queueId);
   }
 
   public addTrack(trackId: string) {
@@ -114,7 +103,11 @@ export class QueueService {
       .pipe(
         tap((res: any) => {
           if (res.action === "DTK") {
+            // auto-like track that you add
+
             this.auth.decrementTokens(res.amount);
+            this.likes.add(res.track._id);
+            console.log(this.likes);
           }
         })
       );
@@ -127,7 +120,7 @@ export class QueueService {
 
   public startQueue(deviceId: string) {
     const url = `${this.baseUrl}/queue/start/`;
-    return this.auth.getUser().pipe(
+    return this.auth.$user.pipe(
       switchMap(user =>
         this.http.post(url, {
           uid: user.uid,
@@ -140,7 +133,7 @@ export class QueueService {
 
   public stopQueue() {
     const url = `${this.baseUrl}/queue/stop`;
-    return this.auth.getUser().pipe(
+    return this.auth.$user.pipe(
       switchMap(user =>
         this.http.post(url, {
           uid: user.uid
@@ -150,10 +143,6 @@ export class QueueService {
   }
 
   public nextTrack() {
-    if (this._tracks.length === 0) {
-      this.toaster.error("Queue Empty");
-      return of(null);
-    }
     return this.http
       .post<ITrack>(`${this.baseUrl}/queue/next/`, {
         uid: this.auth.uid
@@ -219,7 +208,7 @@ export class QueueService {
 
   public removeTrack(track: ITrack) {
     const url = `${this.baseUrl}/queue/rmTrack/${track._id}`;
-    return this.auth.getUser().pipe(
+    return this.auth.$user.pipe(
       switchMap(user =>
         this.http.post(url, {
           uid: user.uid

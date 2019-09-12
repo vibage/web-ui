@@ -17,7 +17,7 @@ export class ListenComponent implements OnInit, OnDestroy {
   private queueSubscription!: Subscription;
 
   ngOnInit() {
-    this.queueSubscription = this.queueService.$player.subscribe(
+    this.queueSubscription = this.queueService.player$.subscribe(
       (player: Spotify.PlaybackState) => {
         clearInterval(this.timerInterval);
         this.playerState = player;

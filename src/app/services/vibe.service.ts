@@ -18,7 +18,7 @@ export class VibeService {
   }
 
   public getVibe() {
-    return this.auth.getUser().pipe(
+    return this.auth.$user.pipe(
       switchMap(user =>
         this.http.get<IVibe>(`${this.baseUrl}/vibe/${user.currentVibe}`)
       ),

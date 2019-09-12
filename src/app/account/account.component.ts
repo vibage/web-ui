@@ -21,7 +21,7 @@ export class AccountComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.auth.getUser().subscribe(user => {
+    this.auth.$user.subscribe(user => {
       if (!user) {
         this.router.navigate(["login"]);
         return;

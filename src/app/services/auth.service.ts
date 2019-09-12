@@ -3,8 +3,8 @@ import { auth } from "firebase/app";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
-import { tap, switchMap, filter, map, take } from "rxjs/operators";
-import { Observable, of, concat, BehaviorSubject } from "rxjs";
+import { tap, switchMap, filter, map, take, shareReplay } from "rxjs/operators";
+import { Observable, of, concat, BehaviorSubject, from, forkJoin } from "rxjs";
 import { IUser, ILike } from ".";
 
 @Injectable({
@@ -12,64 +12,46 @@ import { IUser, ILike } from ".";
 })
 export class AuthService {
   private baseUrl: string;
-  public user: IUser;
 
   public $user!: Observable<IUser>;
-
-  public _isLoggedIn!: boolean;
-
+  public likes$!: Observable<ILike[]>;
   public $tokens = new BehaviorSubject<number>(0);
+
+  public uid: string | null = null;
 
   constructor(private http: HttpClient, private fire: AngularFireAuth) {
     this.baseUrl = environment.apiUrl;
 
     this.$user = this.fire.authState.pipe(
-      tap(user => (this._isLoggedIn = Boolean(user))),
       filter(user => Boolean(user)),
-      switchMap(({ uid }) => this.getUserHttp(uid))
+      switchMap(({ uid }) => this.getUserHttp(uid)),
+      shareReplay(1)
+    );
+
+    this.likes$ = this.$user.pipe(
+      switchMap(user => this.getUserLikesHttp(user)),
+      tap(likes => console.log("Likes:", likes)),
+      shareReplay(1)
     );
 
     this.$user.subscribe(user => {
       console.log({ user });
       this.$tokens.next(user.tokens);
-      this.user = user;
+      this.uid = user.uid;
     });
   }
 
-  public getUser() {
-    if (this.user) {
-      return concat(of(this.user), this.$user);
-    } else {
-      return this.$user;
-    }
-  }
-
-  public getUserOnce() {
-    if (this.user) {
-      return of(this.user);
-    } else {
-      return this.$user.pipe(take(1));
-    }
-  }
-
-  public getMyLikes() {
-    return this.getUser().pipe(
-      switchMap(user =>
-        this.http.get<ILike[]>(`${this.baseUrl}/user/${user._id}/likes`)
-      )
-    );
-  }
-
   public decrementTokens(amount: number) {
-    this.user.tokens -= amount;
-    this.$tokens.next(this.user.tokens);
+    this.$user.subscribe(user => {
+      this.$tokens.next(user.tokens - amount);
+    });
   }
 
   public getAccessToken(): Observable<string> {
     // just always refresh token to begin with?
     // there has to be a better way of doing this
 
-    return this.getUser().pipe(
+    return this.$user.pipe(
       switchMap(user =>
         this.http.post<IUser>(`${this.baseUrl}/user/refresh`, { uid: user.uid })
       ),
@@ -77,11 +59,23 @@ export class AuthService {
     );
   }
 
-  public GoogleAuth() {
-    return this.AuthLogin(new auth.GoogleAuthProvider());
+  public googleLogin() {
+    return from(this.AuthLogin(new auth.GoogleAuthProvider())).pipe(
+      switchMap(({ user }) => {
+        return forkJoin(this.getUserHttp(user.uid), of(user));
+      }),
+      switchMap(([user, firebaseUser]) => {
+        // this means that the user has not been created yet
+        if (!user) {
+          return this.createUser(this.uid, firebaseUser.displayName);
+        }
+
+        return of(user);
+      })
+    );
   }
 
-  public async AuthLogin(provider) {
+  private async AuthLogin(provider) {
     try {
       const result = this.fire.auth.signInWithPopup(provider);
       return result;
@@ -92,26 +86,26 @@ export class AuthService {
 
   public getUserData(userId: string) {
     const url = `${this.baseUrl}/user/${userId}/info`;
-    return this.http.get(url);
+    return this.http.get<IUser>(url);
   }
 
-  public getUserHttp(uid: string) {
-    return this.http.get<IUser>(`${this.baseUrl}/user/${uid}`).pipe(
-      tap(user => {
-        if (user === null) {
-          this.user = null;
-        }
-      })
-    );
+  private getUserHttp(uid: string) {
+    const url = `${this.baseUrl}/user/${uid}`;
+    return this.http.get<IUser>(url);
   }
 
-  public createUser(uid: string, name: string) {
-    return this.http
-      .put<IUser>(`${this.baseUrl}/user`, {
-        uid,
-        name
-      })
-      .pipe(tap(user => (this.user = user)));
+  private createUser(uid: string, name: string) {
+    const url = `${this.baseUrl}/user`;
+    const data = {
+      uid,
+      name
+    };
+    return this.http.put<IUser>(url, data);
+  }
+
+  private getUserLikesHttp(user: IUser) {
+    const url = `${this.baseUrl}/user/${user._id}/likes`;
+    return this.http.get<ILike[]>(url);
   }
 
   public logout() {
@@ -123,22 +117,15 @@ export class AuthService {
     return Boolean(currentUser);
   }
 
-  public get uid() {
-    if (!this.user) {
-      return null;
-    }
-    return this.user.uid;
-  }
-
   public addSpotData(code: string) {
-    return this.getUser().pipe(
+    const url = `${this.baseUrl}/user/spotify`;
+    return this.$user.pipe(
       switchMap(({ uid }) =>
-        this.http.post<IUser>(`${this.baseUrl}/user/spotify`, {
+        this.http.post<IUser>(url, {
           code,
           uid
         })
-      ),
-      tap(user => (this.user = user))
+      )
     );
   }
 }

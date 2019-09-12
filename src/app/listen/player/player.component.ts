@@ -18,7 +18,7 @@ export class PlayerComponent implements OnInit {
     private queueService: QueueService,
     private playerService: PlayerService
   ) {
-    this.auth.getUser().subscribe(user => {
+    this.auth.$user.subscribe(user => {
       this.queueService.setQueueId(user._id);
       this.idLoaded = true;
       this.playerService.isHost = true;
