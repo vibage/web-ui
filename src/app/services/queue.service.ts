@@ -1,19 +1,12 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import {
-  Observable,
-  of,
-  merge,
-  AsyncSubject,
-  BehaviorSubject,
-  ReplaySubject
-} from "rxjs";
+import { Observable, of, merge, ReplaySubject } from "rxjs";
 import { tap, map, switchMap, catchError, shareReplay } from "rxjs/operators";
-import { environment } from "../../environments/environment";
 import { Socket } from "ngx-socket-io";
 import { ITrack } from ".";
 import { AuthService } from "./auth.service";
 import { ToastrService } from "ngx-toastr";
+import { FeatureFlagService } from "./feature-flags.service";
 
 @Injectable({
   providedIn: "root"
@@ -51,9 +44,10 @@ export class QueueService {
     private http: HttpClient,
     private socket: Socket,
     private auth: AuthService,
-    private toaster: ToastrService
+    private toaster: ToastrService,
+    features: FeatureFlagService
   ) {
-    this.baseUrl = environment.apiUrl;
+    this.baseUrl = features.apiUrl;
 
     const playerSocket = this.socket.fromEvent<Spotify.PlaybackState>("player");
     const tracksSocket = this.socket.fromEvent<ITrack[]>("tracks");

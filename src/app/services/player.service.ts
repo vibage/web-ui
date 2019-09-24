@@ -59,6 +59,7 @@ export class PlayerService {
       name: "Vibage",
       getOAuthToken: cb => {
         this.auth.getAccessToken().subscribe(token => {
+          console.log(`Access Token: ${token}`);
           cb(token);
         });
       }

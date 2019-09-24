@@ -5,17 +5,18 @@ import { ActivatedRoute } from "@angular/router";
   providedIn: "root"
 })
 export class FeatureFlagService {
-  constructor(private route: ActivatedRoute) {}
-
   private features: Set<string> = new Set<string>();
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const mods = params.get("mods").split(",");
-      for (let i = 0; i < mods.length; i++) {
-        this.features.add(mods[i]);
+  constructor(private route: ActivatedRoute) {
+    const params = new URLSearchParams(window.location.search);
+    const mods = params.get("mods");
+    if (mods) {
+      const modList = mods.split(",");
+      for (const mod of modList) {
+        this.features.add(mod);
       }
-    });
+    }
+    console.log(this.features);
   }
 
   has(feature: string) {
@@ -23,12 +24,14 @@ export class FeatureFlagService {
   }
 
   get apiUrl(): string {
+    console.log(this.has("local"));
     if (this.has("local")) {
-      return "localhost:3000";
+      return "http://localhost:3000";
     } else if (this.has("stage")) {
-      return "vibage-stage.appspot.com";
+      return "http://vibage-stage.appspot.com";
     } else {
-      return "vibage.appspot.com";
+      return "https://vibage.herokuapp.com";
+      // return "http://vibage.appspot.com";
     }
   }
 }

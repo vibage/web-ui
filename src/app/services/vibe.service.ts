@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { environment } from "../../environments/environment";
 import { AuthService } from "./auth.service";
 import { IVibe } from ".";
-import { map, switchMap, tap } from "rxjs/operators";
+import { switchMap, tap } from "rxjs/operators";
 import { of } from "rxjs";
+import { FeatureFlagService } from './feature-flags.service';
 
 @Injectable({
   providedIn: "root"
@@ -13,8 +13,8 @@ export class VibeService {
   private baseUrl!: string;
   private vibe!: IVibe;
 
-  constructor(private http: HttpClient, private auth: AuthService) {
-    this.baseUrl = environment.apiUrl;
+  constructor(private http: HttpClient, private auth: AuthService, features: FeatureFlagService) {
+    this.baseUrl = features.apiUrl;
   }
 
   public getVibe() {
