@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { interval, from, BehaviorSubject, combineLatest } from "rxjs";
-import { switchMap, filter, takeUntil, takeWhile, take } from "rxjs/operators";
+import { switchMap, filter, takeWhile, take } from "rxjs/operators";
 import { AuthService } from "./auth.service";
 import { QueueService } from "./queue.service";
 import { MatSliderChange } from "@angular/material";

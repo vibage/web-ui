@@ -16,7 +16,6 @@ export class FeatureFlagService {
         this.features.add(mod);
       }
     }
-    console.log(this.features);
   }
 
   has(feature: string) {
@@ -24,7 +23,6 @@ export class FeatureFlagService {
   }
 
   get apiUrl(): string {
-    console.log(this.has("local"));
     if (this.has("local")) {
       return "http://localhost:3000";
     } else if (this.has("stage")) {

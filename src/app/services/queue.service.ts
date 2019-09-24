@@ -2,11 +2,11 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable, of, merge, ReplaySubject } from "rxjs";
 import { tap, map, switchMap, catchError, shareReplay } from "rxjs/operators";
-import { Socket } from "ngx-socket-io";
 import { ITrack } from ".";
 import { AuthService } from "./auth.service";
 import { ToastrService } from "ngx-toastr";
 import { FeatureFlagService } from "./feature-flags.service";
+import { SocketService } from "./socket.service";
 
 @Injectable({
   providedIn: "root"
@@ -42,7 +42,7 @@ export class QueueService {
 
   constructor(
     private http: HttpClient,
-    private socket: Socket,
+    private socket: SocketService,
     private auth: AuthService,
     private toaster: ToastrService,
     features: FeatureFlagService
