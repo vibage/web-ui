@@ -2,10 +2,10 @@ import { Injectable } from "@angular/core";
 import { auth } from "firebase/app";
 import { AngularFireAuth } from "@angular/fire/auth";
 import { HttpClient } from "@angular/common/http";
-import { environment } from "../../environments/environment";
-import { tap, switchMap, filter, map, take, shareReplay } from "rxjs/operators";
-import { Observable, of, concat, BehaviorSubject, from, forkJoin } from "rxjs";
+import { tap, switchMap, filter, map, shareReplay } from "rxjs/operators";
+import { Observable, of, BehaviorSubject, from, forkJoin } from "rxjs";
 import { IUser, ILike } from ".";
+import { FeatureFlagService } from "./feature-flags.service";
 
 @Injectable({
   providedIn: "root"
@@ -19,8 +19,12 @@ export class AuthService {
 
   public uid: string | null = null;
 
-  constructor(private http: HttpClient, private fire: AngularFireAuth) {
-    this.baseUrl = environment.apiUrl;
+  constructor(
+    private http: HttpClient,
+    private fire: AngularFireAuth,
+    features: FeatureFlagService
+  ) {
+    this.baseUrl = features.apiUrl;
 
     this.$user = this.fire.authState.pipe(
       filter(user => Boolean(user)),

@@ -20,7 +20,7 @@ export class QueueComponent implements OnInit {
   public isHost!: boolean;
 
   constructor(
-    private queueService: QueueService,
+    public queueService: QueueService,
     private route: ActivatedRoute
   ) {
     this.route.params.subscribe(params => {
