@@ -7,6 +7,10 @@ img {
   margin-left: -5px;
 }
 
+img:hover {
+  cursor: pointer;
+}
+
 mat-toolbar {
   justify-content: space-between;
 }

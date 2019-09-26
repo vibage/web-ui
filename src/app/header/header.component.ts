@@ -1,8 +1,14 @@
 import { Component, OnInit } from "@angular/core";
 import { AuthService } from "../services/auth.service";
-import { MatIconRegistry } from "@angular/material";
+import {
+  MatIconRegistry,
+  MatDialogConfig,
+  MatDialog,
+  MatDialogRef
+} from "@angular/material";
 import { DomSanitizer } from "@angular/platform-browser";
 import { Router } from "@angular/router";
+import { SigninComponent } from "../account/signin/signin.component";
 
 @Component({
   selector: "app-header",
@@ -12,11 +18,12 @@ import { Router } from "@angular/router";
 export class HeaderComponent implements OnInit {
   public tokens!: number;
 
-  public openLogin = false;
+  loginDialogRef: MatDialogRef<SigninComponent>;
 
   constructor(
     public auth: AuthService,
     private router: Router,
+    private dialog: MatDialog,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
   ) {
@@ -41,11 +48,9 @@ export class HeaderComponent implements OnInit {
   }
 
   login() {
-    this.openLogin = true;
-  }
-
-  closeLogin() {
-    this.openLogin = false;
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.autoFocus = true;
+    this.dialog.open(SigninComponent, dialogConfig);
   }
 
   logout() {

@@ -1,6 +1,6 @@
 import { Component, OnInit, EventEmitter, Output } from "@angular/core";
 import { AuthService } from "../../services/auth.service";
-import { Router } from "@angular/router";
+import { MatDialogRef } from "@angular/material";
 
 @Component({
   selector: "app-signin",
@@ -10,21 +10,17 @@ import { Router } from "@angular/router";
 export class SigninComponent implements OnInit {
   public isLoggedIn = false;
 
-  @Output() private close = new EventEmitter<void>();
-
-  constructor(public auth: AuthService, private router: Router) {}
+  constructor(
+    public auth: AuthService,
+    private dialogRef: MatDialogRef<SigninComponent>
+  ) {}
 
   ngOnInit() {}
-
-  closeModal() {
-    this.close.emit();
-  }
 
   googleLogin(): void {
     this.auth.googleLogin().subscribe(
       () => {
-        this.isLoggedIn = true;
-        this.close.emit();
+        this.dialogRef.close();
       },
       error => {
         console.log(error);

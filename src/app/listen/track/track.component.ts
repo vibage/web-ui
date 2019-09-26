@@ -1,9 +1,10 @@
 import { Component, OnInit, Input } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
-import { MatIconRegistry } from "@angular/material";
+import { MatIconRegistry, MatDialog } from "@angular/material";
 import { ITrack, IUser } from "../../services";
 import { AuthService } from "../../services/auth.service";
 import { QueueService } from "../../services/queue.service";
+import { TrackInfoModalComponent } from "./track-info-modal/track-info-modal.component";
 
 @Component({
   selector: "app-track",
@@ -26,7 +27,8 @@ export class TrackComponent implements OnInit {
     private auth: AuthService,
     private queueService: QueueService,
     private iconRegistry: MatIconRegistry,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit() {
@@ -54,12 +56,6 @@ export class TrackComponent implements OnInit {
     this.addFunc(this.track);
   }
 
-  play() {
-    this.queueService.playTrack(this.track._id).subscribe(() => {
-      console.log("Track Played");
-    });
-  }
-
   toggleLike() {
     if (!this.auth.isLoggedIn()) {
       alert("Please log in to like songs");
@@ -74,16 +70,13 @@ export class TrackComponent implements OnInit {
     }
   }
 
-  remove() {
-    this.queueService.removeTrack(this.track).subscribe(data => {
-      console.log(data);
-    });
-  }
-
   showMore() {
-    this.showMoreCard = true;
-    this.auth.getUserData(this.track.addedBy).subscribe((user: IUser) => {
-      this.userName = user.name;
+    this.dialog.open(TrackInfoModalComponent, {
+      data: {
+        track: this.track,
+        removable: this.removable,
+        playable: this.playable
+      }
     });
   }
 }

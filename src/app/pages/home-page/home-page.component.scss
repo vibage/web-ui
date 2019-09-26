@@ -5,4 +5,9 @@ mat-card {
   text-align: center;
   height: 50vh;
   justify-content: space-around;
+
+  button {
+    padding: 20px;
+    font-size: 2em;
+  }
 }

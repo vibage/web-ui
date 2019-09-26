@@ -1,4 +1,15 @@
+div {
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
 button {
   display: block;
   margin-bottom: 10px;
+}
+
+h1 {
+  text-align: center;
 }

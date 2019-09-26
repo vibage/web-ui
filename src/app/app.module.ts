@@ -29,6 +29,7 @@ import { MatCheckboxModule } from "@angular/material/checkbox";
 import { MatListModule } from "@angular/material/list";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material";
+import { MatDialogModule } from "@angular/material";
 
 // Other Libraries
 import { ToastrModule } from "ngx-toastr";
@@ -42,6 +43,7 @@ import { HeaderComponent } from "./header/header.component";
 import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";
 import { AccountComponent } from "./account/account.component";
 import { HomePageComponent } from "./pages/home-page/home-page.component";
+import { TrackInfoModalComponent } from "./listen/track/track-info-modal/track-info-modal.component";
 
 const toastConfig = {
   timeOut: 10000,
@@ -58,12 +60,13 @@ const toastConfig = {
     PlayerComponent,
     CurrentTrackComponent,
     ListenComponent,
-    SigninComponent,
     HostFindComponent,
     HeaderComponent,
     VibeSettingsComponent,
     AccountComponent,
-    HomePageComponent
+    HomePageComponent,
+    SigninComponent,
+    TrackInfoModalComponent
   ],
   imports: [
     BrowserModule,
@@ -80,11 +83,13 @@ const toastConfig = {
     MatListModule,
     MatFormFieldModule,
     MatInputModule,
+    MatDialogModule,
     ToastrModule.forRoot(toastConfig),
     FormsModule,
     AngularFireModule.initializeApp(environment.firebase, "fizzle"),
     AngularFireAuthModule
   ],
+  entryComponents: [SigninComponent, TrackInfoModalComponent],
   providers: [],
   bootstrap: [AppComponent]
 })

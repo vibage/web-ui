@@ -13,7 +13,7 @@ import { SocketService } from "./socket.service";
 })
 export class QueueService {
   private baseUrl!: string;
-  private likes!: Set<string>;
+  private likes = new Set();
 
   public tracks$!: Observable<ITrack[]>;
   public player$!: Observable<Spotify.PlaybackState>;

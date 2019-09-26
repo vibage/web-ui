@@ -1,0 +1,19 @@
+<div>
+  <div class="close-button" (click)="showMoreCard = false"> </div>
+
+  <img [src]="track.imageUrl" />
+  <h2> {{ track.name }} </h2>
+  <h4> {{ track.artist }} </h4>
+
+  <p *ngIf="userName"> Added by {{ userName }}</p>
+
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Close</button>
+    <button mat-button *ngIf="removable" (click)="remove()">
+      <mat-icon svgIcon="delete"></mat-icon>Remove
+    </button>
+    <button mat-button *ngIf="playable" (click)="play()">
+      <mat-icon svgIcon="play"></mat-icon>Play
+    </button>
+  </div>
+</div>
