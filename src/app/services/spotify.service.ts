@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../environments/environment";
 import { ITrack } from "./index";
-import { AuthService } from "./auth.service";
+import { FeatureFlagService } from "./feature-flags.service";
 
 @Injectable({
   providedIn: "root"
@@ -17,9 +17,8 @@ export class SpotifyService {
   public isStarted = false;
   public isPlaying = false;
 
-  constructor(private http: HttpClient, private auth: AuthService) {
-    this.baseUrl = environment.apiUrl;
-    console.log("Base URL", this.baseUrl);
+  constructor(private http: HttpClient, features: FeatureFlagService) {
+    this.baseUrl = features.apiUrl;
   }
 
   public getHosts() {

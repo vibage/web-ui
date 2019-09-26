@@ -33,9 +33,6 @@ import { MatInputModule } from "@angular/material";
 // Other Libraries
 import { ToastrModule } from "ngx-toastr";
 
-// Socket
-import { SocketIoModule, SocketIoConfig } from "ngx-socket-io";
-
 // Firebase
 import { AngularFireModule } from "@angular/fire";
 import { AngularFireAuthModule } from "@angular/fire/auth";
@@ -45,10 +42,6 @@ import { HeaderComponent } from "./header/header.component";
 import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";
 import { AccountComponent } from "./account/account.component";
 import { HomePageComponent } from "./pages/home-page/home-page.component";
-
-const config: SocketIoConfig = {
-  url: environment.apiUrl
-};
 
 const toastConfig = {
   timeOut: 10000,
@@ -79,7 +72,6 @@ const toastConfig = {
     MatIconModule,
     MatProgressBarModule,
     BrowserAnimationsModule,
-    SocketIoModule.forRoot(config),
     MatCardModule,
     MatButtonModule,
     MatSliderModule,
