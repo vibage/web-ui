@@ -19,9 +19,8 @@ export class TrackInfoModalComponent implements OnInit {
     private auth: AuthService,
     private queueService: QueueService,
     private dialogRef: MatDialogRef<TrackInfoModalComponent>,
-    @Inject(MAT_DIALOG_DATA) data
+    @Inject(MAT_DIALOG_DATA) data: {track: ITrack, playable: boolean, removable: boolean}
   ) {
-    console.log(data);
     this.track = data.track;
     this.playable = data.playable;
     this.removable = data.removable;
@@ -34,15 +33,13 @@ export class TrackInfoModalComponent implements OnInit {
   ngOnInit() {}
 
   remove() {
-    this.queueService.removeTrack(this.track).subscribe(data => {
-      console.log(data);
+    this.queueService.removeTrack(this.track).subscribe(() => {
       this.dialogRef.close();
     });
   }
 
   play() {
     this.queueService.playTrack(this.track._id).subscribe(() => {
-      console.log("Track Played");
       this.dialogRef.close();
     });
   }

@@ -44,6 +44,7 @@ import { VibeSettingsComponent } from "./vibe-settings/vibe-settings.component";
 import { AccountComponent } from "./account/account.component";
 import { HomePageComponent } from "./pages/home-page/home-page.component";
 import { TrackInfoModalComponent } from "./listen/track/track-info-modal/track-info-modal.component";
+import { TrackPreviewModalComponent } from "./listen/search/track-preview-modal/track-preview-modal.component";
 
 const toastConfig = {
   timeOut: 10000,
@@ -66,7 +67,8 @@ const toastConfig = {
     AccountComponent,
     HomePageComponent,
     SigninComponent,
-    TrackInfoModalComponent
+    TrackInfoModalComponent,
+    TrackPreviewModalComponent
   ],
   imports: [
     BrowserModule,
@@ -89,7 +91,11 @@ const toastConfig = {
     AngularFireModule.initializeApp(environment.firebase, "fizzle"),
     AngularFireAuthModule
   ],
-  entryComponents: [SigninComponent, TrackInfoModalComponent],
+  entryComponents: [
+    SigninComponent,
+    TrackInfoModalComponent,
+    TrackPreviewModalComponent
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })

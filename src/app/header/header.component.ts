@@ -48,9 +48,7 @@ export class HeaderComponent implements OnInit {
   }
 
   login() {
-    const dialogConfig = new MatDialogConfig();
-    dialogConfig.autoFocus = true;
-    this.dialog.open(SigninComponent, dialogConfig);
+    this.dialog.open(SigninComponent, { autoFocus: true });
   }
 
   logout() {

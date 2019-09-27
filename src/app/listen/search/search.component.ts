@@ -1,20 +1,13 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from "@angular/core";
-import {
-  switchMap,
-  filter,
-  debounceTime,
-  distinctUntilChanged,
-  map,
-  tap
-} from "rxjs/operators";
-import { fromEvent } from "rxjs";
-import { MatIconRegistry } from "@angular/material";
+import { switchMap, filter, debounceTime, map, tap } from "rxjs/operators";
+import { fromEvent, Observable } from "rxjs";
+import { MatIconRegistry, MatDialog } from "@angular/material";
 import { DomSanitizer } from "@angular/platform-browser";
 import { ITrack } from "../../services";
 import { QueueService } from "../../services/queue.service";
 import { AuthService } from "src/app/services/auth.service";
-import { SpotifyService } from "src/app/services/spotify.service";
 import { VibeService } from "src/app/services/vibe.service";
+import { TrackPreviewModalComponent } from "./track-preview-modal/track-preview-modal.component";
 
 @Component({
   selector: "app-search",
@@ -24,7 +17,7 @@ import { VibeService } from "src/app/services/vibe.service";
 export class SearchComponent implements AfterViewInit {
   @ViewChild("searchInput") input: ElementRef;
 
-  public tracks!: ITrack[];
+  public tracks$!: Observable<ITrack[]>;
   public query = "";
 
   public previewTrack!: ITrack;
@@ -33,9 +26,9 @@ export class SearchComponent implements AfterViewInit {
 
   constructor(
     private queueService: QueueService,
-    private spot: SpotifyService,
     private auth: AuthService,
     private vibeService: VibeService,
+    public dialog: MatDialog,
     iconRegistry: MatIconRegistry,
     sanitizer: DomSanitizer
   ) {
@@ -46,24 +39,17 @@ export class SearchComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    fromEvent(this.input.nativeElement, "input")
-      .pipe(
-        map((e: KeyboardEvent) => (e.target as HTMLInputElement).value),
-        tap(q => (this.query = q)),
-        filter(q => q.length > 0),
-        tap(() => {
-          this.loading = true;
-          this.tracks = [];
-        }),
-        debounceTime(300),
-        // distinctUntilChanged(),
-        switchMap(q => this.queueService.omnisearch(q))
-      )
-      .subscribe(tracks => {
-        console.log({ tracks });
-        this.tracks = tracks;
-        this.loading = false;
-      });
+    this.tracks$ = fromEvent(this.input.nativeElement, "input").pipe(
+      map((e: KeyboardEvent) => (e.target as HTMLInputElement).value),
+      tap(q => (this.query = q)),
+      filter(q => q.length > 0),
+      tap(() => (this.loading = true)),
+      debounceTime(300),
+      switchMap(q => this.queueService.omnisearch(q)),
+      tap(tracks => console.log({ tracks })),
+      tap(() => (this.loading = false))
+    );
+
     fromEvent(this.input.nativeElement, "focus").subscribe(() => {
       this.vibeService.$vibe.subscribe(vibe => {
         if (!vibe.canUserAddTrack) {
@@ -80,21 +66,17 @@ export class SearchComponent implements AfterViewInit {
 
   selectTrack(track: ITrack) {
     this.previewTrack = track;
-  }
-
-  addTrack() {
-    this.queueService.addTrack(this.previewTrack._id).subscribe(data => {
-      if (data.error) {
-        alert(data.message);
-      }
-      console.log(data);
-    });
-    this.previewTrack = null;
-    this.input.nativeElement.value = "";
-    this.query = "";
-  }
-
-  close() {
-    this.previewTrack = null;
+    this.dialog
+      .open(TrackPreviewModalComponent, {
+        data: { track }
+      })
+      .afterClosed()
+      .subscribe(didAddSong => {
+        if (didAddSong) {
+          this.previewTrack = null;
+          this.input.nativeElement.value = "";
+          this.query = "";
+        }
+      });
   }
 }

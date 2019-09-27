@@ -1,13 +1,12 @@
-@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+@import "~@angular/material/prebuilt-themes/deeppurple-amber.css";
 
 // regular style toast
-@import '~ngx-toastr/toastr.css';
-
+@import "~ngx-toastr/toastr.css";
 
 body {
   margin: 0px;
   padding: 0px;
-  background-color: #FFF;
+  background-color: #fff;
   width: 100vw;
   height: 100vh;
   overflow-x: hidden;
@@ -28,7 +27,9 @@ body {
 
 p,
 h1,
+h2,
 h3,
+h4,
 span {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
@@ -39,34 +40,4 @@ p {
 
 .main-card {
   margin: 10px;
-}
-
-.pop-card {
-  position: fixed;
-  top: 5%;
-  left: 5%;
-  width: 90%;
-  height: 90%;
-  border: 2px solid black;
-  border-radius: 20px;
-  background-color: white;
-  z-index: 10;
-  padding: 20px;
-  box-sizing: border-box;
-
-  .close-button {
-    position: absolute;
-    top: 5px;
-    right: 10px;
-  }
-
-  .close-button:before {
-    content: "×";
-    color: grey;
-    font-size: 30px;
-  }
-
-  .close-button:hover {
-    color: red;
-  }
 }

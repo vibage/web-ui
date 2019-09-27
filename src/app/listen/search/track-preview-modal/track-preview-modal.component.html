@@ -1,0 +1,9 @@
+<div id="trackPreview">
+  <img [src]="track.imageUrl" />
+  <h1><b>{{ track.artist }}</b></h1>
+  <h3> {{ track.name }} </h3>
+  <button mat-raised-button (click)="addTrack()" id="addSongButton"> Add Song </button>
+  <div mat-dialog-actions>
+    <button mat-button mat-dialog-close>Close</button>
+  </div>
+</div>

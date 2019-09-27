@@ -2,19 +2,14 @@
   <mat-icon svgIcon="search"></mat-icon>
   <input type="text" #searchInput placeholder="Enter Track Title" />
 </div>
-<mat-card class="main-card" *ngIf="query.length > 0">
-  <p *ngIf="loading"> Loading... </p>
-  <div *ngIf="!loading">
-    <app-track *ngFor="let track of tracks" [track]="track" [addable]="true" [addFunc]="selectTrack.bind(this)">
-    </app-track>
-    <p *ngIf="tracks && tracks.length === 0"> No Results </p>
-  </div>
-</mat-card>
 
-<div id="trackPreview" *ngIf="previewTrack" class="pop-card">
-  <img [src]="previewTrack.imageUrl" />
-  <p class="close-button" (click)="close()"></p>
-  <h1><b>{{ previewTrack.artist }}</b></h1>
-  <h3> {{ previewTrack.name }} </h3>
-  <button mat-raised-button (click)="addTrack()"> Confirm Song </button>
+<div *ngIf="(tracks$ | async) as tracks">
+  <mat-card class="main-card" *ngIf="query.length > 0">
+    <p *ngIf="loading"> Loading... </p>
+    <div *ngIf="!loading">
+      <app-track *ngFor="let track of tracks" [track]="track" [addable]="true" [addFunc]="selectTrack.bind(this)">
+      </app-track>
+      <p *ngIf="tracks && tracks.length === 0"> No Results </p>
+    </div>
+  </mat-card>
 </div>

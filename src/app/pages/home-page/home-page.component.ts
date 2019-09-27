@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 import { AuthService } from "src/app/services/auth.service";
-import { MatDialogRef, MatDialog, MatDialogConfig } from "@angular/material";
+import { MatDialogRef, MatDialog } from "@angular/material";
 import { SigninComponent } from "src/app/account/signin/signin.component";
 
 @Component({
@@ -30,9 +30,7 @@ export class HomePageComponent implements OnInit {
       this.router.navigate(["account"]);
     } else {
       // Bring up the login modal
-      const dialogConfig = new MatDialogConfig();
-      dialogConfig.autoFocus = true;
-      this.dialog.open(SigninComponent, dialogConfig);
+      this.dialog.open(SigninComponent, { autoFocus: true });
     }
   }
 }
