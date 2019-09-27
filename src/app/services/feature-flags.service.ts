@@ -29,8 +29,6 @@ export class FeatureFlagService {
     } else if (this.has("stage")) {
       return "http://vibage-stage.appspot.com";
     } else {
-      return "http://localhost:3000";
-
       return "https://vibage.herokuapp.com";
     }
   }
