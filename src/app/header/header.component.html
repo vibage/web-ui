@@ -7,9 +7,9 @@
   </span>
 
   <span>
-    <button *ngIf="isLoggedIn" mat-raised-button (click)="goToAccount()"> Account </button>
+    <button color="primary" *ngIf="isLoggedIn" mat-flat-button (click)="goToAccount()"> Account </button>
 
-    <button *ngIf="!isLoggedIn" mat-raised-button (click)="login()"> Login / Register </button>
-    <button *ngIf="isLoggedIn" mat-raised-button (click)="logout()"> Logout </button>
+    <button color="primary" *ngIf="!isLoggedIn" mat-flat-button (click)="login()"> Login / Register </button>
+    <button color="primary" *ngIf="isLoggedIn" mat-flat-button (click)="logout()"> Logout </button>
   </span>
 </mat-toolbar>

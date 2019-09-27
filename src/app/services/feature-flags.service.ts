@@ -8,8 +8,9 @@ export class FeatureFlagService {
   private features: Set<string> = new Set<string>();
 
   constructor(private route: ActivatedRoute) {
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(window.location.hash.split("?")[1]);
     const mods = params.get("mods");
+    console.log(mods);
     if (mods) {
       const modList = mods.split(",");
       for (const mod of modList) {
@@ -28,8 +29,9 @@ export class FeatureFlagService {
     } else if (this.has("stage")) {
       return "http://vibage-stage.appspot.com";
     } else {
+      return "http://localhost:3000";
+
       return "https://vibage.herokuapp.com";
-      // return "http://vibage.appspot.com";
     }
   }
 }

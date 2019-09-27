@@ -19,10 +19,6 @@ export class TrackComponent implements OnInit {
   @Input() playable!: boolean;
   @Input() addFunc!: (track: ITrack) => void;
 
-  public isLiked = false;
-  public showMoreCard = false;
-  public userName!: string;
-
   constructor(
     private auth: AuthService,
     private queueService: QueueService,
@@ -38,9 +34,6 @@ export class TrackComponent implements OnInit {
     this.registerIcon("play");
     this.registerIcon("add");
     this.registerIcon("more");
-    if (this.track.isLiked) {
-      this.isLiked = true;
-    }
   }
 
   registerIcon(iconName: string) {
@@ -61,9 +54,9 @@ export class TrackComponent implements OnInit {
       alert("Please log in to like songs");
       return;
     }
-    this.isLiked = !this.isLiked;
+    this.track.isLiked = !this.track.isLiked;
 
-    if (this.isLiked) {
+    if (this.track.isLiked) {
       this.queueService.likeTrack(this.track._id).subscribe();
     } else {
       this.queueService.unlikeTrack(this.track._id).subscribe();

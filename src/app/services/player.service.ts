@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { interval, from, BehaviorSubject, combineLatest } from "rxjs";
-import { switchMap, filter, takeWhile, take } from "rxjs/operators";
+import { switchMap, filter, takeWhile, take, tap } from "rxjs/operators";
 import { AuthService } from "./auth.service";
 import { QueueService } from "./queue.service";
 import { MatSliderChange } from "@angular/material";
@@ -102,6 +102,12 @@ export class PlayerService {
   }
 
   private playerStateChanged(state: Spotify.PlaybackState | null) {
+    console.log("Setting State", state);
+    // Skip sending the first couple of player states
+    if (this.gettingNextSong) {
+      console.log("Skipping");
+      return;
+    }
     this.queueService.sendPlayerState(state).subscribe();
     if (!state) {
       return;
@@ -160,6 +166,7 @@ export class PlayerService {
         // queue was empty
         console.log("Queue was empty");
         this.playerState = null;
+        this.$playerState.next(null);
       }
       console.log("Next Song");
       // wait 3 seconds before letting you go to the next song

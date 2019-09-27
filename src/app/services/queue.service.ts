@@ -1,6 +1,13 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Observable, of, merge, ReplaySubject } from "rxjs";
+import {
+  Observable,
+  of,
+  merge,
+  ReplaySubject,
+  BehaviorSubject,
+  combineLatest
+} from "rxjs";
 import { tap, map, switchMap, catchError, shareReplay } from "rxjs/operators";
 import { ITrack } from ".";
 import { AuthService } from "./auth.service";
@@ -13,11 +20,14 @@ import { SocketService } from "./socket.service";
 })
 export class QueueService {
   private baseUrl!: string;
-  private likes = new Set();
+  private likes = new Set<string>();
 
   public tracks$!: Observable<ITrack[]>;
+
   public player$!: Observable<Spotify.PlaybackState>;
   public queueIdSubject = new ReplaySubject<string>();
+
+  private likes$ = new BehaviorSubject<Set<string>>(new Set());
 
   public currentTrack!: ITrack;
   public queueId!: string;
@@ -52,11 +62,16 @@ export class QueueService {
     const playerSocket = this.socket.fromEvent<Spotify.PlaybackState>("player");
     const tracksSocket = this.socket.fromEvent<ITrack[]>("tracks");
 
-    this.tracks$ = merge(this.getTracksHttp(), tracksSocket).pipe(
-      tap(tracks => console.log("Tracks:", tracks)),
-      map(tracks =>
+    this.tracks$ = combineLatest(
+      merge(this.getTracksHttp(), tracksSocket),
+      this.likes$
+    ).pipe(
+      tap(([tracks, likes]) =>
+        console.log("Tracks:", tracks, "Likes: ", likes)
+      ),
+      map(([tracks, likes]) =>
         tracks.map(track => {
-          if (this.likes.has(track._id)) {
+          if (likes.has(track._id)) {
             track.isLiked = true;
           }
           return track;
@@ -70,7 +85,9 @@ export class QueueService {
       for (const like of likes) {
         likeSet.add(like.trackId);
       }
+
       this.likes = likeSet;
+      this.likes$.next(likeSet);
     });
 
     this.player$ = merge(this.getPlayerHttp(), playerSocket).pipe(
@@ -101,7 +118,7 @@ export class QueueService {
 
             this.auth.decrementTokens(res.amount);
             this.likes.add(res.track._id);
-            console.log(this.likes);
+            this.likes$.next(this.likes);
           }
         })
       );
@@ -137,6 +154,10 @@ export class QueueService {
   }
 
   public nextTrack() {
+    this.tracks$.subscribe(tracks => {
+      if (tracks.length === 0) {
+      }
+    });
     return this.http
       .post<ITrack>(`${this.baseUrl}/queue/next/`, {
         uid: this.auth.uid
@@ -165,6 +186,7 @@ export class QueueService {
 
   public likeTrack(trackId: string) {
     this.likes.add(trackId);
+    this.likes$.next(this.likes);
     const url = `${this.baseUrl}/queue/${this.queueId}/like/${trackId}`;
 
     return this.http.post(url, {
@@ -174,6 +196,7 @@ export class QueueService {
 
   public unlikeTrack(trackId: string) {
     this.likes.delete(trackId);
+    this.likes$.next(this.likes);
     const url = `${this.baseUrl}/queue/${this.queueId}/unlike/${trackId}`;
 
     return this.http.post(url, {
@@ -181,7 +204,7 @@ export class QueueService {
     });
   }
 
-  public sendPlayerState(player: Spotify.PlaybackState) {
+  public sendPlayerState(player: Spotify.PlaybackState | null) {
     return this.http.put(`${this.baseUrl}/queue/state`, {
       uid: this.auth.uid,
       player

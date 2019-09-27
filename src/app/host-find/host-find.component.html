@@ -1,7 +1,7 @@
 <mat-card class="main-card">
-  <h1> Host Vibes Near You </h1>
+  <h1> Queues Near You </h1>
   <mat-card class="host" *ngFor="let host of hosts">
-    <p> {{ host.name }} </p>
-    <button mat-raised-button (click)="chooseHost(host._id)"> Choose Host </button>
+    <h3> {{ host.name }} </h3>
+    <button color="primary" mat-flat-button (click)="chooseHost(host._id)"> Listen </button>
   </mat-card>
 </mat-card>
