@@ -30,7 +30,7 @@ export class PlayerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.playerService.$playerState.subscribe(state => {
+    this.playerService.playerState$.subscribe(state => {
       // console.log("player state", state);
       this.playerState = state;
       if (state) {

@@ -1,5 +1,27 @@
 import { Injectable } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+
+function getFeaturesFromLocalStorage(): string[] {
+  return localStorage.getItem("features")
+    ? JSON.parse(localStorage.getItem("features"))
+    : [];
+}
+
+(window as any).getFeatures = (): Set<string> => {
+  return new Set(getFeaturesFromLocalStorage());
+};
+
+(window as any).addFeature = (feature: string) => {
+  const features = getFeaturesFromLocalStorage();
+  features.push(feature);
+  localStorage.setItem("features", JSON.stringify(features));
+};
+
+(window as any).removeFeature = (feature: string) => {
+  const features = getFeaturesFromLocalStorage().filter(
+    name => feature !== name
+  );
+  localStorage.setItem("features", JSON.stringify(features));
+};
 
 @Injectable({
   providedIn: "root"
@@ -7,16 +29,9 @@ import { ActivatedRoute } from "@angular/router";
 export class FeatureFlagService {
   private features: Set<string> = new Set<string>();
 
-  constructor(private route: ActivatedRoute) {
-    const params = new URLSearchParams(window.location.hash.split("?")[1]);
-    const mods = params.get("mods");
-    console.log(mods);
-    if (mods) {
-      const modList = mods.split(",");
-      for (const mod of modList) {
-        this.features.add(mod);
-      }
-    }
+  constructor() {
+    this.features = new Set(getFeaturesFromLocalStorage());
+    console.log(this.features);
   }
 
   has(feature: string) {

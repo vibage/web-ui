@@ -21,11 +21,11 @@
     <p *ngIf="!isHost && !isOn"> Wait for host to start queue </p>
   </mat-card-content>
   <mat-card-actions *ngIf="isHost">
-    <button #startButton *ngIf="!isOn" (click)="playerService.start()" mat-button> Start </button>
-    <button #nextButton *ngIf="isOn" (click)="playerService.nextTrack()" mat-button> Next </button>
-    <button #playerButton *ngIf="!isPlaying && isOn" (click)="playerService.play()" mat-button> Play </button>
-    <button #pauseButton *ngIf="isPlaying && isOn" (click)="playerService.pause()" mat-button> Pause </button>
-    <button #stopButton *ngIf="isOn" (click)="playerService.stop()" mat-button> Stop </button>
-    <button #vibeButton (click)="openVibe()" mat-button> Settings </button>
+    <button mat-flat-button *ngIf="!isOn" (click)="playerService.start()"> Start </button>
+    <button mat-flat-button *ngIf="isOn" (click)="playerService.nextTrack()"> Next </button>
+    <button mat-flat-button *ngIf="!isPlaying && isOn" (click)="playerService.play()"> Play </button>
+    <button mat-flat-button *ngIf="isPlaying && isOn" (click)="playerService.pause()"> Pause </button>
+    <button mat-flat-button *ngIf="isOn" (click)="playerService.stop()"> Stop </button>
+    <button mat-flat-button (click)="openVibe()"> Settings </button>
   </mat-card-actions>
 </mat-card>

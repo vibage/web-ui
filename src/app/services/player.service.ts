@@ -1,42 +1,77 @@
 import { Injectable } from "@angular/core";
-import { interval, from, BehaviorSubject, combineLatest } from "rxjs";
-import { switchMap, filter, takeWhile, take, tap } from "rxjs/operators";
+import {
+  interval,
+  from,
+  BehaviorSubject,
+  combineLatest,
+  ReplaySubject,
+  Observable
+} from "rxjs";
+import {
+  switchMap,
+  filter,
+  takeWhile,
+  take,
+  tap,
+  shareReplay,
+  map
+} from "rxjs/operators";
 import { AuthService } from "./auth.service";
 import { QueueService } from "./queue.service";
 import { MatSliderChange } from "@angular/material";
+
+enum QueueState {
+  OFF,
+  PLAYING,
+  PAUSED,
+  WAITING
+}
 
 @Injectable({
   providedIn: "root"
 })
 export class PlayerService {
   private player: Spotify.SpotifyPlayer;
-  private playerState: Spotify.PlaybackState;
+
+  // I might refactor to this later
+  public queueState = QueueState.OFF;
 
   public queueStarted: boolean; // for telling if the queue is on or not
-
   private gettingNextSong: boolean;
-
+  private shouldSendPlayerState = false;
   private deviceId: string;
 
-  public $playerState = new BehaviorSubject<Spotify.PlaybackState>(null);
   public playerLoaded = false;
-
   public isHost = false;
 
-  constructor(private auth: AuthService, private queueService: QueueService) {}
+  private playerStateSubject = new ReplaySubject<
+    [Spotify.PlaybackState | null, string]
+  >();
 
-  // this is the state of the component
-  public queueStateSubject = new BehaviorSubject<boolean>(false);
-
-  public ngOnInit(): void {
-    combineLatest(this.auth.$user, this.queueStateSubject).subscribe(
-      ([user, queueOn]) => {
-        if (!queueOn) {
-          return;
-        }
+  public playerState$ = this.playerStateSubject.pipe(
+    filter(([state]) => Boolean(state)),
+    tap(([state, source]) => {
+      if (source === "spotify") {
+        console.log("Spot State", state);
       }
-    );
-  }
+
+      if (this.shouldSendPlayerState || source === "spotify") {
+        console.log("Sending player state", state);
+        this.shouldSendPlayerState = false;
+        this.queueService.sendPlayerState(state).subscribe();
+      }
+
+      const { position, duration } = state;
+      if (duration - position < 1100) {
+        console.log("Times up, Playing next track");
+        this.nextTrack();
+      }
+    }),
+    map(([state]) => state),
+    shareReplay(1)
+  );
+
+  constructor(private auth: AuthService, private queueService: QueueService) {}
 
   public createTimer() {
     // start timer
@@ -46,7 +81,7 @@ export class PlayerService {
         filter(() => !this.gettingNextSong && Boolean(this.player)),
         switchMap(() => from(this.player.getCurrentState()))
       )
-      .subscribe(this.processState.bind(this));
+      .subscribe(state => this.playerStateSubject.next([state, "timer"]));
   }
 
   public loadPlayer() {
@@ -70,9 +105,8 @@ export class PlayerService {
     player.addListener("authentication_error", this.logError);
     player.addListener("account_error", this.logError);
     player.addListener("playback_error", this.logError);
-    player.addListener(
-      "player_state_changed",
-      this.playerStateChanged.bind(this)
+    player.addListener("player_state_changed", state =>
+      this.playerStateSubject.next([state, "spotify"])
     );
     player.addListener("ready", this.playerReady.bind(this));
     player.addListener("not_ready", this.playerNotReady);
@@ -101,29 +135,16 @@ export class PlayerService {
     console.error(message);
   }
 
-  private playerStateChanged(state: Spotify.PlaybackState | null) {
-    console.log("Setting State", state);
-    // Skip sending the first couple of player states
-    if (this.gettingNextSong) {
-      console.log("Skipping");
-      return;
-    }
-    this.queueService.sendPlayerState(state).subscribe();
-    if (!state) {
-      return;
-    }
-    this.processState(state);
-  }
-
   private playerReady({ device_id }) {
     console.log(`Player ready Device ID: ${device_id}`);
     this.deviceId = device_id;
     this.playerLoaded = true;
 
     this.auth.$user.pipe(take(1)).subscribe(user => {
+      // Resume the queue if the user used to have a playback state
       if (user.player) {
         this.queueService.resume().subscribe(() => {
-          console.log("Queue Resumed");
+          console.log("Resuming Queue");
           this.createTimer();
         });
       } else {
@@ -143,30 +164,15 @@ export class PlayerService {
     console.log(`Device ID has gone offline: ${device_id}`);
   }
 
-  private processState(state: Spotify.PlaybackState) {
-    this.playerState = state;
-    this.$playerState.next(state);
-    if (!state) {
-      return;
-    }
-    const { position, duration } = state;
-    if (duration - position < 1100) {
-      console.log("Times up");
-      this.nextTrack();
-    }
-  }
-
   public nextTrack() {
     if (this.gettingNextSong) {
       return;
     }
     this.gettingNextSong = true;
+    this.shouldSendPlayerState = true;
     this.queueService.nextTrack().subscribe(res => {
       if (res === null) {
-        // queue was empty
-        console.log("Queue was empty");
-        this.playerState = null;
-        this.$playerState.next(null);
+        console.log("Queue is empty");
       }
       console.log("Next Song");
       // wait 3 seconds before letting you go to the next song
@@ -177,24 +183,30 @@ export class PlayerService {
   }
 
   public stop() {
-    this.queueStarted = false;
-    this.$playerState.next(null);
-    this.playerState = null;
+    this.shouldSendPlayerState = true;
+    this.playerStateSubject.next([null, "stop"]);
     this.queueService.stopQueue().subscribe(() => {
       console.log("Stop Queue");
+      this.queueStarted = false;
     });
   }
 
   public play() {
+    this.shouldSendPlayerState = true;
     this.player.resume();
   }
 
   public pause() {
+    this.shouldSendPlayerState = true;
     this.player.pause();
   }
 
   public seek(event: MatSliderChange) {
-    const seekTimeMs = (event.value / 100) * this.playerState.duration;
-    this.player.seek(seekTimeMs);
+    this.shouldSendPlayerState = true;
+    console.log("Seek");
+    this.playerState$.pipe(take(1)).subscribe(playerState => {
+      const seekTimeMs = (event.value / 100) * playerState.duration;
+      this.player.seek(seekTimeMs);
+    });
   }
 }
