@@ -44,7 +44,7 @@ export class FeatureFlagService {
     } else if (this.has("stage")) {
       return "http://vibage-stage.appspot.com";
     } else {
-      return "https://vibage.herokuapp.com";
+      return "https://api.tgt101.com";
     }
   }
 }
