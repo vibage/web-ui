@@ -10,9 +10,8 @@ import { environment } from "../environments/environment";
 // Components
 import { AppComponent } from "./app.component";
 import { CurrentTrackComponent } from "./listen/current-track/current-track.component";
-import { ListenComponent } from "./listen/listen.component";
+import { ListenComponent } from "./pages/listen-page/listen.component";
 import { SearchComponent } from "./listen/search/search.component";
-import { PlayerComponent } from "./listen/player/player.component";
 import { QueueComponent } from "./listen/queue/queue.component";
 
 // Shared
@@ -45,6 +44,8 @@ import { AccountComponent } from "./account/account.component";
 import { HomePageComponent } from "./pages/home-page/home-page.component";
 import { TrackInfoModalComponent } from "./listen/track/track-info-modal/track-info-modal.component";
 import { TrackPreviewModalComponent } from "./listen/search/track-preview-modal/track-preview-modal.component";
+import { DevicePickerComponent } from "./listen/device-picker/device-picker.component";
+import { HostPageComponent } from "./pages/host-page/host-page.component";
 
 const toastConfig = {
   timeOut: 10000,
@@ -58,7 +59,6 @@ const toastConfig = {
     QueueComponent,
     SearchComponent,
     TrackComponent,
-    PlayerComponent,
     CurrentTrackComponent,
     ListenComponent,
     HostFindComponent,
@@ -68,7 +68,9 @@ const toastConfig = {
     HomePageComponent,
     SigninComponent,
     TrackInfoModalComponent,
-    TrackPreviewModalComponent
+    TrackPreviewModalComponent,
+    DevicePickerComponent,
+    HostPageComponent
   ],
   imports: [
     BrowserModule,

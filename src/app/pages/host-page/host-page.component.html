@@ -1,0 +1,6 @@
+<app-search></app-search>
+
+<app-device-picker (selectedDeviceChange)="startVibage($event)"></app-device-picker>
+
+<app-current-track [isHost]="true"></app-current-track>
+<app-queue host="true" *ngIf="idLoaded"></app-queue>

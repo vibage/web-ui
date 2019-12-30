@@ -14,7 +14,6 @@ export class AuthService {
   private baseUrl: string;
 
   public $user!: Observable<IUser>;
-  public likes$!: Observable<ILike[]>;
   public $tokens = new BehaviorSubject<number>(0);
 
   public uid: string | null = null;
@@ -29,12 +28,6 @@ export class AuthService {
     this.$user = this.fire.authState.pipe(
       filter(user => Boolean(user)),
       switchMap(({ uid }) => this.getUserHttp(uid)),
-      shareReplay(1)
-    );
-
-    this.likes$ = this.$user.pipe(
-      switchMap(user => this.getUserLikesHttp(user)),
-      tap(likes => console.log("Likes:", likes)),
       shareReplay(1)
     );
 
@@ -105,11 +98,6 @@ export class AuthService {
       name
     };
     return this.http.put<IUser>(url, data);
-  }
-
-  private getUserLikesHttp(user: IUser) {
-    const url = `${this.baseUrl}/user/${user._id}/likes`;
-    return this.http.get<ILike[]>(url);
   }
 
   public logout() {

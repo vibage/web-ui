@@ -1,31 +1,31 @@
 <mat-card class="main-card">
-  <mat-card-content *ngIf="isStarted && isOn">
-    <div id="top">
-      <img *ngIf="imgUrl" [src]="imgUrl" />
-      <div>
-        <p> <b> {{ trackName }} </b> </p>
-        <p> {{ artist }} </p>
+  <ng-container *ngIf="(player$ | async) as player">
+    <mat-card-content>
+      <div id="top">
+        <img *ngIf="player.imgUrl" [src]="player.imgUrl" />
+        <div>
+          <p> <b> {{ player.trackName }} </b> </p>
+          <p> {{ player.artist }} </p>
+        </div>
       </div>
-    </div>
-    <mat-progress-bar *ngIf="!isHost" color="primary" [value]="progress" mode="determinate">
-    </mat-progress-bar>
-    <mat-slider *ngIf="isHost" max="100" min="0" [value]="progress" (input)="playerService.seek($event)"
-      color="primary">
-    </mat-slider>
-    {{ elapseReadable }} -
-    {{ durationReadable }}
-  </mat-card-content>
-  <mat-card-content>
-    <p *ngIf="isHost && !isOn"> Press start to begin queue </p>
-    <p *ngIf="isHost && !isStarted && isOn"> Queue will play once someone adds a song </p>
-    <p *ngIf="!isHost && !isOn"> Wait for host to start queue </p>
-  </mat-card-content>
-  <mat-card-actions *ngIf="isHost">
-    <button mat-flat-button *ngIf="!isOn" (click)="playerService.start()"> Start </button>
-    <button mat-flat-button *ngIf="isOn" (click)="playerService.nextTrack()"> Next </button>
-    <button mat-flat-button *ngIf="!isPlaying && isOn" (click)="playerService.play()"> Play </button>
-    <button mat-flat-button *ngIf="isPlaying && isOn" (click)="playerService.pause()"> Pause </button>
-    <button mat-flat-button *ngIf="isOn" (click)="playerService.stop()"> Stop </button>
-    <button mat-flat-button (click)="openVibe()"> Settings </button>
-  </mat-card-actions>
+      <mat-progress-bar *ngIf="!isHost" color="primary" [value]="player.progress" mode="determinate">
+      </mat-progress-bar>
+      <mat-slider *ngIf="isHost" max="100" min="0" [value]="player.progress" (input)="playerService.seek($event)"
+        color="primary">
+      </mat-slider>
+      {{ player.timeReadable }}
+    </mat-card-content>
+    <mat-card-actions *ngIf="isHost">
+      <button mat-flat-button (click)="nextTrack()"> Next </button>
+      <button mat-flat-button *ngIf="!player.playing" (click)="play()" [disabled]="player.playing !== playing"> Play
+      </button>
+      <button mat-flat-button *ngIf="player.playing" (click)="pause()" [disabled]="player.playing !== playing"> Pause
+      </button>
+      <button mat-flat-button (click)="stop()"> Stop </button>
+      <button mat-flat-button (click)="openVibe()"> Settings </button>
+    </mat-card-actions>
+  </ng-container>
+  <ng-container *ngIf="!(player$ | async)">
+    <p> Queue Not Started </p>
+  </ng-container>
 </mat-card>

@@ -1,0 +1,6 @@
+<mat-card class="main-card">
+  <div *ngFor="let device of devices$ | async">
+    {{ device.name }}
+    <button (click)="start(device)">Start on this device</button>
+  </div>
+</mat-card>

@@ -2,19 +2,21 @@ import { Component, OnInit } from "@angular/core";
 import { AuthService } from "../../services/auth.service";
 import { QueueService } from "../../services/queue.service";
 import { PlayerService } from "src/app/services/player.service";
+import { ApiService } from "src/app/services/api.service";
 
 @Component({
-  selector: "app-player",
-  templateUrl: "./player.component.html",
-  styleUrls: ["./player.component.scss"]
+  selector: "app-host-page",
+  templateUrl: "./host-page.component.html",
+  styleUrls: ["./host-page.component.scss"]
 })
-export class PlayerComponent implements OnInit {
+export class HostPageComponent {
   public idLoaded = false;
   public playerState!: Spotify.PlaybackState;
   public elapse = 0;
 
   constructor(
     private auth: AuthService,
+    private api: ApiService,
     private queueService: QueueService,
     public playerService: PlayerService
   ) {
@@ -22,20 +24,14 @@ export class PlayerComponent implements OnInit {
       this.queueService.setQueueId(user._id);
       this.idLoaded = true;
       this.playerService.isHost = true;
-      // resume player if the player exists
-      if (user.player) {
-        this.playerService.start();
-      }
+      // this.queueService.resume();
     });
   }
 
-  ngOnInit() {
-    this.playerService.playerState$.subscribe(state => {
-      // console.log("player state", state);
-      this.playerState = state;
-      if (state) {
-        this.elapse = state.position;
-      }
+  startVibage(deviceId: string) {
+    this.api.startVibage().subscribe(() => {
+      console.log("Vibage Started");
     });
   }
+
 }

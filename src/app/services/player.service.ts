@@ -2,10 +2,7 @@ import { Injectable } from "@angular/core";
 import {
   interval,
   from,
-  BehaviorSubject,
-  combineLatest,
   ReplaySubject,
-  Observable
 } from "rxjs";
 import {
   switchMap,
@@ -26,6 +23,7 @@ enum QueueState {
   PAUSED,
   WAITING
 }
+
 
 @Injectable({
   providedIn: "root"
@@ -71,7 +69,7 @@ export class PlayerService {
     shareReplay(1)
   );
 
-  constructor(private auth: AuthService, private queueService: QueueService) {}
+  constructor(private auth: AuthService, private queueService: QueueService) { }
 
   public createTimer() {
     // start timer
@@ -143,10 +141,7 @@ export class PlayerService {
     this.auth.$user.pipe(take(1)).subscribe(user => {
       // Resume the queue if the user used to have a playback state
       if (user.player) {
-        this.queueService.resume().subscribe(() => {
-          console.log("Resuming Queue");
-          this.createTimer();
-        });
+        this.createTimer();
       } else {
         this.startQueueHttp();
       }

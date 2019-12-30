@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Output } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { AuthService } from "../../services/auth.service";
 import { MatDialogRef } from "@angular/material";
 
@@ -13,9 +13,9 @@ export class SigninComponent implements OnInit {
   constructor(
     public auth: AuthService,
     private dialogRef: MatDialogRef<SigninComponent>
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   googleLogin(): void {
     this.auth.googleLogin().subscribe(

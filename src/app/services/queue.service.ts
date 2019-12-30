@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
 import {
   Observable,
   of,
@@ -8,23 +7,22 @@ import {
   BehaviorSubject,
   combineLatest
 } from "rxjs";
-import { tap, map, switchMap, catchError, shareReplay } from "rxjs/operators";
+import { tap, map, switchMap, catchError, shareReplay, take } from "rxjs/operators";
 import { ITrack } from ".";
 import { AuthService } from "./auth.service";
 import { ToastrService } from "ngx-toastr";
-import { FeatureFlagService } from "./feature-flags.service";
 import { SocketService } from "./socket.service";
+import { ApiService } from "./api.service";
 
 @Injectable({
   providedIn: "root"
 })
 export class QueueService {
-  private baseUrl!: string;
   private likes = new Set<string>();
 
   public tracks$!: Observable<ITrack[]>;
 
-  public player$!: Observable<Spotify.PlaybackState>;
+  public player$!: Observable<Spotify.PlaybackState | null>;
   public queueIdSubject = new ReplaySubject<string>();
 
   private likes$ = new BehaviorSubject<Set<string>>(new Set());
@@ -34,33 +32,24 @@ export class QueueService {
 
   private getTracksHttp() {
     return this.queueIdSubject.pipe(
-      switchMap(queueId =>
-        this.http.get<ITrack[]>(`${this.baseUrl}/queue/${queueId}/tracks`)
-      )
+      switchMap(queueId => this.api.getTracks(queueId))
     );
   }
 
   private getPlayerHttp() {
     return this.queueIdSubject.pipe(
-      switchMap(queueId =>
-        this.http.get<Spotify.PlaybackState>(
-          `${this.baseUrl}/queue/${queueId}/player`
-        )
-      )
+      switchMap(queueId => this.api.getPlayer(queueId))
     );
   }
 
   constructor(
-    private http: HttpClient,
+    private api: ApiService,
     private socket: SocketService,
     private auth: AuthService,
     private toaster: ToastrService,
-    features: FeatureFlagService
   ) {
-    this.baseUrl = features.apiUrl;
-
-    const playerSocket = this.socket.fromEvent<Spotify.PlaybackState>("player");
-    const tracksSocket = this.socket.fromEvent<ITrack[]>("tracks");
+    const playerSocket = this.socket.state$;
+    const tracksSocket = this.socket.tracks$;
 
     this.tracks$ = combineLatest(
       merge(this.getTracksHttp(), tracksSocket),
@@ -80,7 +69,7 @@ export class QueueService {
       shareReplay(1)
     );
 
-    this.auth.likes$.subscribe(likes => {
+    this.api.likes$.subscribe(likes => {
       const likeSet = new Set<string>();
       for (const like of likes) {
         likeSet.add(like.trackId);
@@ -91,26 +80,25 @@ export class QueueService {
     });
 
     this.player$ = merge(this.getPlayerHttp(), playerSocket).pipe(
-      tap(x => console.log(`Player: ${x}`)),
+      tap(x => console.log(`Player: `, x)),
       shareReplay(1)
     );
   }
 
   public setQueueId(queueId: string) {
     console.log(`Setting queue id: ${queueId}`);
-    this.socket.emit("myId", queueId);
+    this.socket.sendMessage({
+      type: "myId",
+      myIdPayload: {
+        id: queueId,
+      }
+    });
     this.queueId = queueId;
     this.queueIdSubject.next(queueId);
   }
 
   public addTrack(trackId: string) {
-    const queuerId = this.auth.uid;
-
-    return this.http
-      .put(`${this.baseUrl}/queue/${this.queueId}/track`, {
-        trackId,
-        queuerId
-      })
+    return this.api.addTrack(this.queueId, trackId)
       .pipe(
         tap((res: any) => {
           if (res.action === "DTK") {
@@ -125,32 +113,15 @@ export class QueueService {
   }
 
   public omnisearch(query: string) {
-    const url = `${this.baseUrl}/queue/${this.queueId}/search?q=${query}`;
-    return this.http.get<ITrack[]>(url);
+    return this.api.search(this.queueId, query);
   }
 
   public startQueue(deviceId: string) {
-    const url = `${this.baseUrl}/queue/start/`;
-    return this.auth.$user.pipe(
-      switchMap(user =>
-        this.http.post(url, {
-          uid: user.uid,
-          deviceId
-        })
-      ),
-      tap(data => console.log(data))
-    );
+    return this.api.startQueue(deviceId);
   }
 
   public stopQueue() {
-    const url = `${this.baseUrl}/queue/stop`;
-    return this.auth.$user.pipe(
-      switchMap(user =>
-        this.http.post(url, {
-          uid: user.uid
-        })
-      )
-    );
+    return this.api.stopQueue();
   }
 
   public nextTrack() {
@@ -158,10 +129,7 @@ export class QueueService {
       if (tracks.length === 0) {
       }
     });
-    return this.http
-      .post<ITrack>(`${this.baseUrl}/queue/next/`, {
-        uid: this.auth.uid
-      })
+    return this.api.nextTrack()
       .pipe(
         catchError(err => {
           console.log(err);
@@ -172,65 +140,46 @@ export class QueueService {
   }
 
   public resume() {
-    return this.http.post(`${this.baseUrl}/queue/resume`, {
-      uid: this.auth.uid
+    this.auth.$user.pipe(take(1)).subscribe(user => {
+      // Resume the queue if the user used to have a playback state
+      if (user.player) {
+        console.log("Resuming Queue");
+        this.api.resume();
+      }
     });
   }
 
   public playTrack(trackId: string) {
-    return this.http.put(`${this.baseUrl}/queue/playTrack`, {
-      uid: this.auth.uid,
-      trackId
-    });
+    return this.api.playTrack(trackId);
   }
 
   public likeTrack(trackId: string) {
     this.likes.add(trackId);
     this.likes$.next(this.likes);
-    const url = `${this.baseUrl}/queue/${this.queueId}/like/${trackId}`;
 
-    return this.http.post(url, {
-      uid: this.auth.uid
-    });
+    return this.api.likeTrack(this.queueId, trackId);
   }
 
   public unlikeTrack(trackId: string) {
     this.likes.delete(trackId);
     this.likes$.next(this.likes);
-    const url = `${this.baseUrl}/queue/${this.queueId}/unlike/${trackId}`;
 
-    return this.http.post(url, {
-      uid: this.auth.uid
-    });
+    return this.api.unlikeTrack(this.queueId, trackId);
   }
 
   public sendPlayerState(player: Spotify.PlaybackState | null) {
-    return this.http.put(`${this.baseUrl}/queue/state`, {
-      uid: this.auth.uid,
-      player
-    });
+    return this.api.sendPlayerState(player);
   }
 
   public play() {
-    return this.http.put(`${this.baseUrl}/queue/play`, {
-      uid: this.auth.uid
-    });
+    return this.api.play();
   }
 
   public pause() {
-    return this.http.put(`${this.baseUrl}/queue/pause`, {
-      uid: this.auth.uid
-    });
+    return this.api.pause();
   }
 
   public removeTrack(track: ITrack) {
-    const url = `${this.baseUrl}/queue/rmTrack/${track._id}`;
-    return this.auth.$user.pipe(
-      switchMap(user =>
-        this.http.post(url, {
-          uid: user.uid
-        })
-      )
-    );
+    return this.api.removeTrack(track);
   }
 }
