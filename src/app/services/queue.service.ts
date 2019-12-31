@@ -100,7 +100,7 @@ export class QueueService {
   public addTrack(trackId: string) {
     return this.api.addTrack(this.queueId, trackId)
       .pipe(
-        tap((res: any) => {
+        tap(res => {
           if (res.action === "DTK") {
             // auto-like track that you add
 

@@ -1,28 +1,23 @@
 import { Injectable } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
 import { AuthService } from "./auth.service";
 import { IVibe } from ".";
 import { switchMap, tap } from "rxjs/operators";
 import { of } from "rxjs";
-import { FeatureFlagService } from './feature-flags.service';
+import { ApiService } from "./api.service";
 
 @Injectable({
   providedIn: "root"
 })
 export class VibeService {
-  private baseUrl!: string;
   private vibe!: IVibe;
 
-  constructor(private http: HttpClient, private auth: AuthService, features: FeatureFlagService) {
-    this.baseUrl = features.apiUrl;
+  constructor(private auth: AuthService, private api: ApiService) {
   }
 
   public getVibe() {
     return this.auth.$user.pipe(
-      switchMap(user =>
-        this.http.get<IVibe>(`${this.baseUrl}/vibe/${user.currentVibe}`)
-      ),
-      tap(vibe => (this.vibe = vibe))
+      switchMap(user => this.api.getVibe(user.currentVibe)),
+      tap(vibe => (this.vibe = vibe)),
     );
   }
 
@@ -35,14 +30,11 @@ export class VibeService {
   }
 
   public getAllVibes() {
-    return this.http.get<IVibe[]>(`${this.baseUrl}/vibe/pop`);
+    return this.api.getAllVibes();
   }
 
   public setVibe(vibeId: string) {
-    return this.http.put(`${this.baseUrl}/user/vibe/`, {
-      uid: this.auth.uid,
-      vibeId
-    });
+    return this.api.setVibe(vibeId);
   }
 
   public setPlaylist(vibeId: string, playlistUrl: string) {

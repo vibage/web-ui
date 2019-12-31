@@ -24,7 +24,6 @@ export class HostPageComponent {
       this.queueService.setQueueId(user._id);
       this.idLoaded = true;
       this.playerService.isHost = true;
-      // this.queueService.resume();
     });
   }
 

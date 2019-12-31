@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { FeatureFlagService } from "./feature-flags.service";
-import { ITrack, IUser, ILike } from ".";
+import { ITrack, IUser, ILike, IVibe } from ".";
 import { AuthService } from "./auth.service";
 import { switchMap, tap, shareReplay } from "rxjs/operators";
 import { Observable } from "rxjs";
@@ -24,10 +24,10 @@ export class ApiService {
 
   public likes$: Observable<ILike[]>;
 
-  private authPost(url: string, options: object = {}) {
+  private authPost<T>(url: string, options: object = {}) {
     return this.auth.$user.pipe(
       switchMap((user) =>
-        this.http.post(url, {
+        this.http.post<T>(url, {
           uid: user.uid,
           ...options,
         })
@@ -51,7 +51,6 @@ export class ApiService {
 
     this.likes$ = this.auth.$user.pipe(
       switchMap(user => this.getUserLikes(user)),
-      tap(likes => console.log(`Likes: ${likes}`)),
       shareReplay(1),
     );
   }
@@ -97,9 +96,16 @@ export class ApiService {
 
   public addTrack(queueId: string, trackId: string) {
     const url = `${this.baseUrl}/queue/${queueId}/track`;
+    interface ReturnData {
+      action: string;
+      amount: number;
+      track: ITrack;
+      error: string;
+      message: string;
+    }
     return this.auth.$user.pipe(
       switchMap(user =>
-        this.http.put(url, {
+        this.http.put<ReturnData>(url, {
           trackId,
           queuerId: user.uid
         })
@@ -167,6 +173,23 @@ export class ApiService {
     const url = `${this.baseUrl}/queue/state`;
     return this.authPost(url, {
       player
+    });
+  }
+
+  public getVibe(vibeId: string) {
+    const url = `${this.baseUrl}/vibe/${vibeId}`;
+    return this.http.get<IVibe>(url);
+  }
+
+  public getAllVibes() {
+    const url = `${this.baseUrl}/vibe/pop`;
+    return this.http.get<IVibe[]>(url);
+  }
+
+  public setVibe(vibeId: string) {
+    const url = `${this.baseUrl}`;
+    return this.authPut(url, {
+      vibeId,
     });
   }
 }

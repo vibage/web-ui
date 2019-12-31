@@ -51,6 +51,8 @@ export class FeatureFlagService {
   get wsUrl(): string {
     if (this.has("local")) {
       return "ws:localhost:3000";
+    } else {
+      return "ws://api.tgt101.com";
     }
   }
 
